@@ -1,4 +1,4 @@
-# iMAS Application Password
+# iMAS Secure Memory
 
 ## Background
 
