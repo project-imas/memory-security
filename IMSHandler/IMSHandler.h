@@ -10,4 +10,6 @@
 
 @interface IMSHandler : NSObject
 
++ (BOOL) wipe:(NSObject *)obj;
+
 @end
