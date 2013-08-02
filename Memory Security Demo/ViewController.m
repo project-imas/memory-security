@@ -20,7 +20,7 @@
 {
     [super viewDidLoad];
     NSString* str = [[NSString alloc] initWithFormat:@"TESTING111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"];
-   
+    [IMSHandler track:str];
     NSLog(@"NSString: %@", str);
     [IMSHandler wipe:str];
     NSLog(@"NSString: %@", str);

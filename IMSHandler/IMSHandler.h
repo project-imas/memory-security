@@ -10,6 +10,16 @@
 
 @interface IMSHandler : NSObject
 
+typedef NS_ENUM(NSInteger, MemState) {
+    IGNORE,
+    LOCKED,
+    UNLOCKED
+};
+
++ (NSMutableDictionary*) pointers;
+
++ (BOOL) track:(NSObject *)obj;
+
 + (BOOL) wipe:(NSObject *)obj;
 
 @end

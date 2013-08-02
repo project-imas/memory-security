@@ -11,10 +11,20 @@
 
 @implementation IMSHandler
 
+static NSMutableDictionary* pointers;
+static NSString* checksum = NULL;
+
++(NSMutableDictionary*) pointers {
+    if(!pointers) {
+       pointers =[[NSMutableDictionary alloc] init];
+    }
+    return pointers;
+}
 
 // Return NO if object already tracked
 + (BOOL) track:(NSObject *)obj {
-    NSLog(@"NOT IMPLEMENTED");
+    NSNumber* key = [NSNumber numberWithInt:UNLOCKED];
+    [pointers setObject:obj forKey:key];
     return YES;
 }
 
@@ -74,6 +84,24 @@
     NSLog(@"NOT IMPLEMENTED");
 
     return YES;
+}
+
++ (NSString *) checksumStore {
+    NSLog(@"NOT IMPLEMENTED");
+    
+    return @"";
+}
+
++ (BOOL) checksumTest {
+    NSLog(@"NOT IMPLEMENTED");
+
+    return YES;
+}
+
++ (NSString *) checksum {
+    NSLog(@"NOT IMPLEMENTED");
+
+    return @"";
 }
 
 @end
