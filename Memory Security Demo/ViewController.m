@@ -7,6 +7,7 @@
 //
 
 #import "ViewController.h"
+#import "IMSHandler.h"
 
 @interface ViewController ()
 
@@ -15,34 +16,17 @@
 @implementation ViewController
 
 
-+ (void) wipeObject:(NSObject*) obj
-{
-    if([obj isKindOfClass:[NSString class]]) {
-        NSString* str = (NSString*)obj;
-        unsigned char* strPtr = (unsigned char *) CFStringGetCStringPtr((CFStringRef) str, CFStringGetSystemEncoding());
-        memset(strPtr, 0, [str length]);
-        /* Why can't you reliably test encodings?
-         if(![str canBeConvertedToEncoding:(NSUTF8StringEncoding)]) {
-          unsigned char* strPtr16 = (unsigned char *) CFStringGetCharactersPtr((CFStringRef) str);
-          memset(strPtr16, 0, [str length]);
-        }*/
-    } else if([obj isKindOfClass:[NSData class]]) {
-        NSData* data = (NSData*)obj;
-        memset([data bytes], 0, [data length]);
-    } else {
-        NSLog(@"Wiping of object type not supported!");
-    }
-
-}
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    NSString* str = [[NSString alloc] initWithFormat:@"TESTING"];
+    NSString* str = [[NSString alloc] initWithFormat:@"TESTING111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"];
    
     NSLog(@"NSString: %@", str);
-    [ViewController wipeObject:str];
+    [IMSHandler wipe:str];
     NSLog(@"NSString: %@", str);
+
+    NSObject* foo;
+    
 
     /*
     NSData *strData = [@"UTF16 TEST" dataUsingEncoding:NSUTF16StringEncoding];
@@ -56,8 +40,15 @@
     unsigned char bytes[] = {4,9,5};
     NSData *data = [NSData dataWithBytes:bytes length:sizeof(bytes)];
     NSLog(@"NSData: %@", data);
-    [ViewController wipeObject:data];
+    
+    
+    [IMSHandler wipe:data];
     NSLog(@"NSData: %@", data);
+  //  NSLog(@"OBJ MEM: %p, %zd", data, malloc_size(data));
+    
+    NSLog(@"ALL DONE");
+ //   NSString *imsStr = (NSString *)[IMSObject alloc];
+    
     
 }
 

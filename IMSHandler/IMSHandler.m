@@ -6,6 +6,7 @@
 //  Copyright (c) 2013 Black, Gavin S. All rights reserved.
 //
 
+#import <malloc/malloc.h>
 #import "IMSHandler.h"
 
 @implementation IMSHandler
@@ -25,7 +26,21 @@
 // Return NO if wipe failed
 + (BOOL) wipe:(NSObject *)obj {
     NSLog(@"Object pointer: %p", obj);
-    NSLog(@"NOT IMPLEMENTED");
+    if([obj isKindOfClass:[NSString class]]) {
+        memset ( (__bridge void*)obj + 9
+                , 0
+                , malloc_size((__bridge void*)obj) - 9
+                );
+    } else if([obj isKindOfClass:[NSData class]]) {
+        NSLog(@"DATA");
+        //     NSLog(@"%d -- %d -- %d", [str length], malloc_size((__bridge void*)obj), malloc_size((__bridge void*)foob));
+        NSData* data = (NSData*)obj;
+        memset([data bytes], 0, [data length]);
+        NSLog(@"%p -- %p", [data bytes], (__bridge void*)obj);
+        //   NSLog(@">>%p", [data bytes]);
+    } else {
+        NSLog(@"Wiping of object type not supported yet");
+    }
     return YES;
 }
 
