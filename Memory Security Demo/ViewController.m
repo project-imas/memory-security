@@ -22,11 +22,9 @@
     NSString* str = [[NSString alloc] initWithFormat:@"TESTING111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"];
     [IMSHandler track:str];
     NSLog(@"NSString: %@", str);
-    [IMSHandler wipe:str];
+   // [IMSHandler wipe:str];
+    [IMSHandler wipeAll];
     NSLog(@"NSString: %@", str);
-
-    NSObject* foo;
-    
 
     /*
     NSData *strData = [@"UTF16 TEST" dataUsingEncoding:NSUTF16StringEncoding];

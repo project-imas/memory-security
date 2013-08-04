@@ -21,11 +21,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Memory Security Demo/ViewController.m"
-         timestampString = "397170292.859199"
+         timestampString = "397328197.548762"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "50"
-         endingLineNumber = "50"
+         startingLineNumber = "48"
+         endingLineNumber = "48"
          landmarkName = "-viewDidLoad"
          landmarkType = "5">
       </FileBreakpoint>
@@ -34,11 +34,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "IMSHandler/IMSHandler.m"
-         timestampString = "397172487.496402"
+         timestampString = "397328197.548762"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "39"
-         endingLineNumber = "39"
+         startingLineNumber = "41"
+         endingLineNumber = "41"
          landmarkName = "+wipe:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -60,7 +60,7 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "IMSHandler/IMSHandler.m"
-         timestampString = "397172487.496402"
+         timestampString = "397328197.548762"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
          startingLineNumber = "27"
@@ -73,12 +73,12 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "IMSHandler/IMSHandler.m"
-         timestampString = "397172437.275538"
+         timestampString = "397328069.392276"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "19"
-         endingLineNumber = "19"
-         landmarkName = "+makeDictionary"
+         startingLineNumber = "20"
+         endingLineNumber = "20"
+         landmarkName = "+unlockedPointers"
          landmarkType = "5">
       </FileBreakpoint>
    </FileBreakpoints>

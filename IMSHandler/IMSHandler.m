@@ -11,25 +11,27 @@
 
 @implementation IMSHandler
 
-static NSMutableDictionary* pointers;
+static NSPointerArray* unlockedPointers;
+static NSMutableArray* lockedPointers;
 static NSString* checksum = NULL;
 
-+(NSMutableDictionary*) pointers {
-    if(!pointers) {
-       pointers =[[NSMutableDictionary alloc] init];
++(NSPointerArray*) unlockedPointers {
+    if(!unlockedPointers) {
+       unlockedPointers =[[NSPointerArray alloc] init];
     }
-    return pointers;
+    return unlockedPointers;
 }
 
 // Return NO if object already tracked
 + (BOOL) track:(NSObject *)obj {
-    NSNumber* key = [NSNumber numberWithInt:UNLOCKED];
-    [pointers setObject:obj forKey:key];
+    [[self unlockedPointers] addPointer:(void *)obj];
+    NSLog(@"TRACK %p -- %d", obj, [[self unlockedPointers] count]);
     return YES;
 }
 
 + (BOOL) untrack:(NSObject *)obj {
     NSLog(@"NOT IMPLEMENTED");
+    
     return YES;
 }
 
@@ -55,9 +57,12 @@ static NSString* checksum = NULL;
 }
 
 // Return YES if all wiped, NO otherwise
-+ (BOOL) wipeAll:(NSObject *)obj {
-    NSLog(@"NOT IMPLEMENTED");
-
++ (BOOL) wipeAll {
+    NSLog(@"WIPE ALL %d", [[self unlockedPointers] count]);
+    for(id obj in [self unlockedPointers]) {
+        NSLog(@">>>%p", obj);
+        [self wipe:obj];
+    }
     return YES;
 }
 
