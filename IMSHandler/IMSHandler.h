@@ -27,5 +27,6 @@ typedef NS_ENUM(NSInteger, MemState) {
 + (BOOL) lock:(NSObject*) obj:(NSString *)pass;
 + (BOOL) unlock:(NSObject*) obj:(NSString *)pass;
 
++ (NSString *) checksum:(NSObject *) obj;
 
 @end

@@ -19,15 +19,17 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    NSString* str = [[NSString alloc] initWithFormat:@"TESTING111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"];
+    NSString* str = [[NSString alloc] initWithFormat:@"TESTING11111111111111111111111111111111111111111111111111111111111111111111111111111111111"];
     [IMSHandler track:str];
+    NSLog(@"Checksum is %@",[IMSHandler checksum:str]);
     NSLog(@"NSString: %@", str);
    // [IMSHandler wipe:str];
    // [IMSHandler untrack:str];
    // [IMSHandler wipeAll];
     [IMSHandler lock:str:@"FASD"];
-    [IMSHandler unlock:str:@"FASD"];
+  //  [IMSHandler unlock:str:@"FASD"];
     NSLog(@"NSString: %@", str);
+    NSLog(@"Checksum is %@",[IMSHandler checksum:str]);
 
     /*
     NSData *strData = [@"UTF16 TEST" dataUsingEncoding:NSUTF16StringEncoding];

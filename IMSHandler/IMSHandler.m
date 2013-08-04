@@ -7,6 +7,8 @@
 //
 
 #import <CommonCrypto/CommonCryptor.h>
+#import <CommonCrypto/CommonDigest.h>
+
 #import <malloc/malloc.h>
 #import "IMSHandler.h"
 
@@ -166,9 +168,23 @@ static NSString* checksum = NULL;
     return YES;
 }
 
++ (NSString *) checksum:(NSObject *) obj {
+    NSLog(@"Object pointer: %p", obj);
+    NSMutableString *hex = [[NSMutableString alloc] init];
+
+    unsigned char* digest = malloc(CC_SHA1_DIGEST_LENGTH);
+    if (CC_SHA1((__bridge void*)obj, malloc_size((__bridge void*)obj), digest)) {
+        for (NSUInteger i=0; i<CC_SHA1_DIGEST_LENGTH; i++)
+            [hex appendFormat:@"%02x", digest[i]];        
+    }
+    free(digest);
+    
+    return [NSString stringWithString:hex];
+}
+
 + (NSString *) checksum {
     NSLog(@"NOT IMPLEMENTED");
-
+    
     return @"";
 }
 
