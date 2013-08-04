@@ -16,7 +16,7 @@
 
 static NSPointerArray* unlockedPointers;
 static NSMutableArray* lockedPointers;
-static NSString* checksum = NULL;
+static NSString* checksumStr;
 
 +(NSPointerArray*) unlockedPointers {
     if(!unlockedPointers) {
@@ -163,9 +163,11 @@ static NSString* checksum = NULL;
 }
 
 + (BOOL) checksumTest {
-    NSLog(@"NOT IMPLEMENTED");
-
-    return YES;
+    NSString* checksumTmp = [checksumStr copy];
+    NSString* newSum = [self checksum];
+    
+    if([checksumTmp isEqualToString:newSum]) {NSLog(@"Sure"); return NO;}
+    else return NO;
 }
 
 + (NSString *) checksum:(NSObject *) obj {
@@ -183,9 +185,14 @@ static NSString* checksum = NULL;
 }
 
 + (NSString *) checksum {
-    NSLog(@"NOT IMPLEMENTED");
-    
-    return @"";
+    NSMutableString *hex = [[NSMutableString alloc] init];
+
+    for(id obj in [self unlockedPointers]) {
+        [hex appendFormat:@"%p", obj];
+        [hex appendString:[self checksum:obj]];
+    }
+    checksumStr = [NSString stringWithString:hex];
+    return [checksumStr copy];
 }
 
 @end
