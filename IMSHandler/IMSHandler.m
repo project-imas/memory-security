@@ -30,7 +30,12 @@ static NSString* checksum = NULL;
 }
 
 + (BOOL) untrack:(NSObject *)obj {
-    NSLog(@"NOT IMPLEMENTED");
+    
+    for(int i = 0; i < [[self unlockedPointers] count]; i ++){
+        if([[self unlockedPointers] pointerAtIndex:i] == (__bridge void *)(obj)){
+            [[self unlockedPointers] removePointerAtIndex:i];
+        }
+    }
     
     return YES;
 }
@@ -89,12 +94,6 @@ static NSString* checksum = NULL;
     NSLog(@"NOT IMPLEMENTED");
 
     return YES;
-}
-
-+ (NSString *) checksumStore {
-    NSLog(@"NOT IMPLEMENTED");
-    
-    return @"";
 }
 
 + (BOOL) checksumTest {

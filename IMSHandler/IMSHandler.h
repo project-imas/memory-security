@@ -19,6 +19,8 @@ typedef NS_ENUM(NSInteger, MemState) {
 + (NSMutableDictionary*) pointers;
 
 + (BOOL) track:(NSObject *)obj;
++ (BOOL) untrack:(NSObject *)obj;
+
 
 + (BOOL) wipe:(NSObject *)obj;
 + (BOOL) wipeAll;

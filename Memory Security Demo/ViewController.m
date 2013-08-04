@@ -23,6 +23,7 @@
     [IMSHandler track:str];
     NSLog(@"NSString: %@", str);
    // [IMSHandler wipe:str];
+    [IMSHandler untrack:str];
     [IMSHandler wipeAll];
     NSLog(@"NSString: %@", str);
 
