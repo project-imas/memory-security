@@ -95,7 +95,7 @@ static NSString* checksum = NULL;
                                               buffer, bufferSize, /* output */
                                               &numBytesEncrypted);
         memcpy((__bridge void*)obj + 9, buffer, malloc_size((__bridge void*)obj) - 9);
-
+        free(buffer);
     //    if (cryptStatus == kCCSuccess)
     } else if([obj isKindOfClass:[NSData class]]) {
         NSLog(@"DATA");
@@ -111,7 +111,39 @@ static NSString* checksum = NULL;
 }
 
 + (BOOL) unlock:(NSObject *) obj:(NSString *)pass {
-    NSLog(@"NOT IMPLEMENTED");
+    NSLog(@"Object pointer: %p", obj);
+    if([obj isKindOfClass:[NSString class]]) {
+        char keyPtr[kCCKeySizeAES256+1];
+        bzero(keyPtr, sizeof(keyPtr));
+        [pass getCString:keyPtr maxLength:sizeof(keyPtr) encoding:NSUTF8StringEncoding];
+        
+        size_t bufferSize = malloc_size((__bridge void*)obj) - 9 + kCCBlockSizeAES128;
+        void *buffer = malloc(bufferSize);
+        NSUInteger dataLength = malloc_size((__bridge void*)obj) - 9;
+        
+        
+        size_t numBytesEncrypted = 0;
+        CCCryptorStatus cryptStatus = CCCrypt(kCCDecrypt, kCCAlgorithmAES128,
+                                              kCCOptionPKCS7Padding,
+                                              keyPtr, kCCKeySizeAES256,
+                                              NULL /* initialization vector (optional) */,
+                                              (__bridge void*)obj + 9,
+                                              dataLength, /* input */
+                                              buffer, bufferSize, /* output */
+                                              &numBytesEncrypted);
+        memcpy((__bridge void*)obj + 9, buffer, malloc_size((__bridge void*)obj) - 9);
+        free(buffer);
+        //    if (cryptStatus == kCCSuccess)
+    } else if([obj isKindOfClass:[NSData class]]) {
+        NSLog(@"DATA");
+        //     NSLog(@"%d -- %d -- %d", [str length], malloc_size((__bridge void*)obj), malloc_size((__bridge void*)foob));
+        NSData* data = (NSData*)obj;
+        memset([data bytes], 0, [data length]);
+        NSLog(@"%p -- %p", [data bytes], (__bridge void*)obj);
+        //   NSLog(@">>%p", [data bytes]);
+    } else {
+        NSLog(@"Wiping of object type not supported yet");
+    }
 
     return YES;
 }

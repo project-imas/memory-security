@@ -26,6 +26,7 @@
    // [IMSHandler untrack:str];
    // [IMSHandler wipeAll];
     [IMSHandler lock:str:@"FASD"];
+    [IMSHandler unlock:str:@"FASD"];
     NSLog(@"NSString: %@", str);
 
     /*
