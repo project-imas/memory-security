@@ -21,17 +21,17 @@
     [super viewDidLoad];
     NSString* str = [[NSString alloc] initWithFormat:@"TESTING11111111111111111111111111111111111111111111111111111111111111111111111111111111111"];
     [IMSHandler track:str];
-    NSLog(@"Checksum is %@",[IMSHandler checksum]);
+    NSLog(@"Checksum is %d",[IMSHandler checksum]);
     NSLog(@"NSString: %@", str);
    // [IMSHandler wipe:str];
    // [IMSHandler untrack:str];
-   // [IMSHandler wipeAll];
-    NSLog(@"Checksum valid: %@",[IMSHandler checksumTest]);
+    [IMSHandler wipeAll];
+    NSLog(@"Checksum valid: %d",[IMSHandler checksumTest]);
 
     [IMSHandler lock:str:@"FASD"];
   //  [IMSHandler unlock:str:@"FASD"];
     NSLog(@"NSString: %@", str);
-    NSLog(@"Checksum valid: %@",[IMSHandler checksumTest]);
+    NSLog(@"Checksum valid: %d",[IMSHandler checksumTest]);
     
 
     /*

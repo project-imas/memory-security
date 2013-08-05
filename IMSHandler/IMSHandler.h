@@ -22,7 +22,7 @@ typedef NS_ENUM(NSInteger, MemState) {
 + (BOOL) untrack:(NSObject *)obj;
 
 + (BOOL) wipe:(NSObject *)obj;
-+ (BOOL) wipeAll;
++ (int) wipeAll;
 
 + (BOOL) lock:(NSObject*) obj:(NSString *)pass;
 + (BOOL) unlock:(NSObject*) obj:(NSString *)pass;

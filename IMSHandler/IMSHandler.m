@@ -52,26 +52,22 @@ static NSString* checksumStr;
                 , malloc_size((__bridge void*)obj) - 9
                 );
     } else if([obj isKindOfClass:[NSData class]]) {
-        NSLog(@"DATA");
-        //     NSLog(@"%d -- %d -- %d", [str length], malloc_size((__bridge void*)obj), malloc_size((__bridge void*)foob));
         NSData* data = (NSData*)obj;
         memset([data bytes], 0, [data length]);
         NSLog(@"%p -- %p", [data bytes], (__bridge void*)obj);
-        //   NSLog(@">>%p", [data bytes]);
     } else {
         NSLog(@"Wiping of object type not supported yet");
     }
     return YES;
 }
 
-// Return YES if all wiped, NO otherwise
-+ (BOOL) wipeAll {
-    NSLog(@"WIPE ALL %d", [[self unlockedPointers] count]);
+// Return count of how many wiped
++ (int) wipeAll {
     for(id obj in [self unlockedPointers]) {
         NSLog(@">>>%p", obj);
         [self wipe:obj];
     }
-    return YES;
+    return [[self unlockedPointers] count];
 }
 
 // Return YES is the object was encrypted
@@ -100,12 +96,9 @@ static NSString* checksumStr;
         free(buffer);
     //    if (cryptStatus == kCCSuccess)
     } else if([obj isKindOfClass:[NSData class]]) {
-        NSLog(@"DATA");
-        //     NSLog(@"%d -- %d -- %d", [str length], malloc_size((__bridge void*)obj), malloc_size((__bridge void*)foob));
         NSData* data = (NSData*)obj;
         memset([data bytes], 0, [data length]);
         NSLog(@"%p -- %p", [data bytes], (__bridge void*)obj);
-        //   NSLog(@">>%p", [data bytes]);
     } else {
         NSLog(@"Wiping of object type not supported yet");
     }
@@ -166,7 +159,7 @@ static NSString* checksumStr;
     NSString* checksumTmp = [checksumStr copy];
     NSString* newSum = [self checksum];
     
-    if([checksumTmp isEqualToString:newSum]) {NSLog(@"Sure"); return NO;}
+    if([checksumTmp isEqualToString:newSum]) return YES;
     else return NO;
 }
 
