@@ -43,104 +43,77 @@ static NSString* checksumStr;
     return YES;
 }
 
++ (void *) getStart:(NSObject *) obj {
+    if([obj isKindOfClass:[NSString class]]) {
+        return ((__bridge void*)obj + 9);
+    } else if([obj isKindOfClass:[NSData class]]) {
+        return ((__bridge void*)obj + 10);
+    } else {
+        return NULL;
+    }
+}
+
++ (int) getSize:(NSObject *) obj {
+    if([obj isKindOfClass:[NSString class]]) {
+        return (malloc_size((__bridge void*)obj) - 9);
+    } else if([obj isKindOfClass:[NSData class]]) {
+        return (malloc_size((__bridge void*)obj) - 10);
+    } else {
+        return NULL;
+    }
+}
+
 // Return NO if wipe failed
 + (BOOL) wipe:(NSObject *)obj {
     NSLog(@"Object pointer: %p", obj);
-    if([obj isKindOfClass:[NSString class]]) {
-        memset ( (__bridge void*)obj + 9
-                , 0
-                , malloc_size((__bridge void*)obj) - 9
-                );
-    } else if([obj isKindOfClass:[NSData class]]) {
-        NSData* data = (NSData*)obj;
-        memset([data bytes], 0, [data length]);
-        NSLog(@"%p -- %p", [data bytes], (__bridge void*)obj);
-    } else {
-        NSLog(@"Wiping of object type not supported yet");
-    }
+    memset( [self getStart:obj], 0, [self getSize:obj]);
     return YES;
 }
 
 // Return count of how many wiped
 + (int) wipeAll {
-    for(id obj in [self unlockedPointers]) {
-        NSLog(@">>>%p", obj);
-        [self wipe:obj];
-    }
+    for(id obj in [self unlockedPointers]) [self wipe:obj];
+    
     return [[self unlockedPointers] count];
 }
 
 // Return YES is the object was encrypted
-+ (BOOL) lock:(NSObject*) obj:(NSString *)pass {
++ (BOOL) crypt:(NSObject*) obj
+              :(NSString *)pass
+              :(CCOperation) op {
     NSLog(@"Object pointer: %p", obj);
-    if([obj isKindOfClass:[NSString class]]) {
-        char keyPtr[kCCKeySizeAES256+1];
-        bzero(keyPtr, sizeof(keyPtr));
-        [pass getCString:keyPtr maxLength:sizeof(keyPtr) encoding:NSUTF8StringEncoding];
+    char keyPtr[kCCKeySizeAES256+1];
+    bzero(keyPtr, sizeof(keyPtr));
+    [pass getCString:keyPtr maxLength:sizeof(keyPtr) encoding:NSUTF8StringEncoding];
         
-        size_t bufferSize = malloc_size((__bridge void*)obj) - 9 + kCCBlockSizeAES128;
-        void *buffer = malloc(bufferSize);
-        NSUInteger dataLength = malloc_size((__bridge void*)obj) - 9;
+    size_t bufferSize = [self getSize:obj] + kCCBlockSizeAES128;
+    void *buffer = malloc(bufferSize);
+    NSUInteger dataLength = [self getSize:obj];
 
-        
-        size_t numBytesEncrypted = 0;
-        CCCryptorStatus cryptStatus = CCCrypt(kCCEncrypt, kCCAlgorithmAES128,
-                                              kCCOptionPKCS7Padding,
-                                              keyPtr, kCCKeySizeAES256,
-                                              NULL /* initialization vector (optional) */,
-                                              (__bridge void*)obj + 9,
-                                              dataLength, /* input */
-                                              buffer, bufferSize, /* output */
-                                              &numBytesEncrypted);
-        memcpy((__bridge void*)obj + 9, buffer, malloc_size((__bridge void*)obj) - 9);
-        free(buffer);
-    //    if (cryptStatus == kCCSuccess)
-    } else if([obj isKindOfClass:[NSData class]]) {
-        NSData* data = (NSData*)obj;
-        memset([data bytes], 0, [data length]);
-        NSLog(@"%p -- %p", [data bytes], (__bridge void*)obj);
-    } else {
-        NSLog(@"Wiping of object type not supported yet");
-    }
+    
+    size_t numBytesEncrypted = 0;
+    CCCryptorStatus cryptStatus = CCCrypt(op, kCCAlgorithmAES128,
+                                          kCCOptionPKCS7Padding,
+                                          keyPtr, kCCKeySizeAES256,
+                                          NULL,
+                                          (__bridge void*)obj + 9,
+                                          dataLength,
+                                          buffer, bufferSize,
+                                          &numBytesEncrypted);
+    memcpy([self getStart:obj], buffer, [self getSize:obj]);
+    free(buffer);
+    
+    // TODO: Make sure key is wiped
+    // TODO: Return based on cryptStatus  --  if (cryptStatus == kCCSuccess)
     return YES;
 }
 
-+ (BOOL) unlock:(NSObject *) obj:(NSString *)pass {
-    NSLog(@"Object pointer: %p", obj);
-    if([obj isKindOfClass:[NSString class]]) {
-        char keyPtr[kCCKeySizeAES256+1];
-        bzero(keyPtr, sizeof(keyPtr));
-        [pass getCString:keyPtr maxLength:sizeof(keyPtr) encoding:NSUTF8StringEncoding];
-        
-        size_t bufferSize = malloc_size((__bridge void*)obj) - 9 + kCCBlockSizeAES128;
-        void *buffer = malloc(bufferSize);
-        NSUInteger dataLength = malloc_size((__bridge void*)obj) - 9;
-        
-        
-        size_t numBytesEncrypted = 0;
-        CCCryptorStatus cryptStatus = CCCrypt(kCCDecrypt, kCCAlgorithmAES128,
-                                              kCCOptionPKCS7Padding,
-                                              keyPtr, kCCKeySizeAES256,
-                                              NULL /* initialization vector (optional) */,
-                                              (__bridge void*)obj + 9,
-                                              dataLength, /* input */
-                                              buffer, bufferSize, /* output */
-                                              &numBytesEncrypted);
-        memcpy((__bridge void*)obj + 9, buffer, malloc_size((__bridge void*)obj) - 9);
-        free(buffer);
-        //    if (cryptStatus == kCCSuccess)
-    } else if([obj isKindOfClass:[NSData class]]) {
-        NSLog(@"DATA");
-        //     NSLog(@"%d -- %d -- %d", [str length], malloc_size((__bridge void*)obj), malloc_size((__bridge void*)foob));
-        NSData* data = (NSData*)obj;
-        memset([data bytes], 0, [data length]);
-        NSLog(@"%p -- %p", [data bytes], (__bridge void*)obj);
-        //   NSLog(@">>%p", [data bytes]);
-    } else {
-        NSLog(@"Wiping of object type not supported yet");
-    }
++ (BOOL) lock:(NSObject *)obj :(NSString *)pass {
+    return [self crypt:obj :pass :kCCEncrypt];
+}
 
-    return YES;
++ (BOOL) unlock:(NSObject *) obj:(NSString *)pass {
+    return [self crypt:obj :pass :kCCDecrypt];
 }
 
 + (BOOL) lockAll:(NSObject *) obj:(NSString *)pass {

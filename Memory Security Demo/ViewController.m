@@ -23,25 +23,17 @@
     [IMSHandler track:str];
     NSLog(@"Checksum is %d",[IMSHandler checksum]);
     NSLog(@"NSString: %@", str);
-   // [IMSHandler wipe:str];
+    //[IMSHandler wipe:str];
    // [IMSHandler untrack:str];
-    [IMSHandler wipeAll];
+   // [IMSHandler wipeAll];
     NSLog(@"Checksum valid: %d",[IMSHandler checksumTest]);
 
     [IMSHandler lock:str:@"FASD"];
-  //  [IMSHandler unlock:str:@"FASD"];
     NSLog(@"NSString: %@", str);
-    NSLog(@"Checksum valid: %d",[IMSHandler checksumTest]);
-    
+    [IMSHandler unlock:str:@"FASD"];
+    NSLog(@"NSString: %@", str);
 
-    /*
-    NSData *strData = [@"UTF16 TEST" dataUsingEncoding:NSUTF16StringEncoding];
-    NSString *str16 = [[NSString alloc] initWithData:strData encoding:NSUTF16LittleEndianStringEncoding];
-    
-    NSLog(@"UTF16: %@", str16);
-    [ViewController wipeObject:str16];
-    NSLog(@"UTF16: %@", str16);
-    */
+    NSLog(@"Checksum valid: %d",[IMSHandler checksumTest]);
     
     unsigned char bytes[] = {4,9,5};
     NSData *data = [NSData dataWithBytes:bytes length:sizeof(bytes)];
