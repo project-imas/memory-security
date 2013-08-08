@@ -26,7 +26,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-
-[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/1872ba534d9159e437208c392bade83f "githalytics.com")](http://githalytics.com/project-imas/app-password)
+[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/f48f83b0928b98f2b23c498b430b68a3 "githalytics.com")](http://githalytics.com/project-imas/memory-security)
 
 
