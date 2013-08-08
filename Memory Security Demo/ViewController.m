@@ -7,7 +7,7 @@
 //
 
 #import "ViewController.h"
-#import "IMSHandler.h"
+#import "IMSMemoryManager.h"
 
 @interface ViewController ()
 
@@ -20,7 +20,15 @@
 {
     [super viewDidLoad];
     NSString* str = [[NSString alloc] initWithFormat:@"TESTING11111111111111111111111111111111111111111111111111111111111111111111111111111111111"];
-    [IMSHandler track:str];
+    doInit();
+    track(str);
+    NSLog(@"NSString: %@", str);
+    wipeAll(str);
+    NSLog(@"NSString: %@", str);
+    
+    
+/*    [IMSHandler track:str];
+    
     NSLog(@"Checksum is %d",[IMSHandler checksum]);
     NSLog(@"NSString: %@", str);
     //[IMSHandler wipe:str];
@@ -47,7 +55,7 @@
     NSLog(@"ALL DONE");
  //   NSString *imsStr = (NSString *)[IMSObject alloc];
     
-    
+  */
 }
 
 - (void)didReceiveMemoryWarning
