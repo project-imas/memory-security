@@ -16,7 +16,19 @@ void doInit(){
     unlockedPointers =[[NSPointerArray alloc] init];
 }
 
-void* getStart(NSObject * obj) {
+NSString* hexString(NSObject* obj){
+    NSMutableString *hex = [[NSMutableString alloc] init];
+    unsigned char* rawObj = (__bridge void*) obj;
+    int size = malloc_size((__bridge void*) obj);
+    for(int i = 0; i < size; i ++) {
+        if(i%15 == 0) [hex appendString:@"\n"];
+        [hex appendFormat:@"%02x", rawObj[i]];
+    }
+    checksumStr = [NSString stringWithString:hex];
+    return [checksumStr copy];
+}
+
+void* getStart(NSObject* obj) {
     if([obj isKindOfClass:[NSString class]]) {
         return ((__bridge void*)obj + 9);
     } else if([obj isKindOfClass:[NSData class]]) {
@@ -52,7 +64,6 @@ BOOL track(NSObject* obj) {
 }
 
 BOOL untrack(NSObject* obj) {
-    
     for(int i = 0; i < [unlockedPointers count]; i ++){
         if([unlockedPointers pointerAtIndex:i] == (__bridge void *)(obj)){
             [unlockedPointers removePointerAtIndex:i];

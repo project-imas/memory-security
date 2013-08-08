@@ -29,6 +29,8 @@ static NSString* checksumStr;
 
 void doInit(); // TODO remove this being needed
 
+NSString* hexString(NSObject* obj);
+
 // Return NO if wipe failed
 BOOL wipe(NSObject* obj);
 // Return NO if object already tracked

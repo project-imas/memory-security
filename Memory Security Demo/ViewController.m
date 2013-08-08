@@ -26,6 +26,10 @@
     wipeAll(str);
     NSLog(@"NSString: %@", str);
     
+    unsigned char bytes[] = {4,9,5};
+    NSData *data = [NSData dataWithBytes:bytes length:sizeof(bytes)];
+    NSLog(@"NSData: %@", data);
+    NSLog(@"HEX:\n%@", hexString(data));
     
 /*    [IMSHandler track:str];
     
