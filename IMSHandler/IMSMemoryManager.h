@@ -23,7 +23,7 @@
 #import "IMSMemoryManager.h"
 
 
-NSString* hexString(NSObject* obj);
+typedef BOOL (*traversalFunc)(NSObject *);
 
 // Return NO if wipe failed
 BOOL wipe(NSObject* obj);
