@@ -12,8 +12,11 @@ static NSPointerArray* unlockedPointers;
 static NSMutableArray* lockedPointers;
 static NSString* checksumStr;
 
-void doInit(){
-    unlockedPointers =[[NSPointerArray alloc] init];
+void initMem(){
+    if(!unlockedPointers) {
+        NSLog(@"Initializing");
+        unlockedPointers =[[NSPointerArray alloc] init];
+    }
 }
 
 NSString* hexString(NSObject* obj){
@@ -58,12 +61,14 @@ BOOL wipe(NSObject* obj) {
 
 // Return NO if object already tracked
 BOOL track(NSObject* obj) {
+    initMem();
     [unlockedPointers addPointer:(void *)obj];
     NSLog(@"TRACK %p -- %d", obj, [unlockedPointers count]);
     return YES;
 }
 
 BOOL untrack(NSObject* obj) {
+    initMem();
     for(int i = 0; i < [unlockedPointers count]; i ++){
         if([unlockedPointers pointerAtIndex:i] == (__bridge void *)(obj)){
             [unlockedPointers removePointerAtIndex:i];
@@ -76,6 +81,7 @@ BOOL untrack(NSObject* obj) {
 
 // Return count of how many wiped
 int wipeAll() {
+    initMem();
     for(id obj in unlockedPointers) wipe(obj);
     
     return [unlockedPointers count];
@@ -131,6 +137,7 @@ BOOL unlockAll(NSObject* obj, NSString* pass) {
 }
 
 BOOL checksumTest() {
+    initMem();
     NSString* checksumTmp = [checksumStr copy];
     NSString* newSum = checksumMem();
     
@@ -153,6 +160,7 @@ NSString* checksumObj(NSObject* obj) {
 }
 
 NSString* checksumMem() {
+    initMem();
     NSMutableString *hex = [[NSMutableString alloc] init];
     
     for(id obj in unlockedPointers) {

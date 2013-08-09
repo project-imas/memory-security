@@ -22,12 +22,6 @@
 
 #import "IMSMemoryManager.h"
 
-static NSPointerArray* unlockedPointers;
-static NSMutableArray* lockedPointers;
-static NSString* checksumStr;
-
-
-void doInit(); // TODO remove this being needed
 
 NSString* hexString(NSObject* obj);
 
