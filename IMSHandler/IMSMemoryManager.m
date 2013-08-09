@@ -27,8 +27,7 @@ NSString* hexString(NSObject* obj){
         if(i%15 == 0) [hex appendString:@"\n"];
         [hex appendFormat:@"%02x", rawObj[i]];
     }
-    checksumStr = [NSString stringWithString:hex];
-    return [checksumStr copy];
+    return [NSString stringWithString:hex];
 }
 
 void* getStart(NSObject* obj) {
