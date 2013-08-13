@@ -37,6 +37,8 @@ void* getStart(NSObject* obj) {
         return ((__bridge void*)obj + 10);
     } else if([obj isKindOfClass:[NSNumber class]]) {
         return ((__bridge void*)obj + 6);
+    } else if([obj isKindOfClass:[NSArray class]]) {
+        return ((__bridge void*)obj + 4);
     } else {
         return 0;
     }
@@ -49,6 +51,8 @@ int getSize(NSObject* obj) {
         return (malloc_size((__bridge void*)obj) - 10);
     } else if([obj isKindOfClass:[NSNumber class]]) {
         return (malloc_size((__bridge void*)obj) - 6);
+    } else if([obj isKindOfClass:[NSArray class]]) {
+        return (malloc_size((__bridge void*)obj) - 4);
     } else {
         return 0;
     }
@@ -57,7 +61,6 @@ int getSize(NSObject* obj) {
 BOOL handleType(NSObject* obj, traversalFunc f) {
     BOOL ret = YES;
     if([obj isKindOfClass:[NSArray class]]){
-        ret = NO;
         for( id newObj in (NSArray*)obj) {
             (*f)(newObj);
         }
@@ -65,6 +68,7 @@ BOOL handleType(NSObject* obj, traversalFunc f) {
     NSLog(@"Done with type handler %d", ret);
     return ret;
 }
+
 
 // Return NO if wipe failed
 BOOL wipe(NSObject* obj) {
