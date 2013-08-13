@@ -59,12 +59,10 @@ BOOL handleType(NSObject* obj, traversalFunc f) {
     if([obj isKindOfClass:[NSArray class]]){
         ret = NO;
         for( id newObj in (NSArray*)obj) {
-            NSLog(@"WIPE TYPE: %@", newObj);
             (*f)(newObj);
         }
-        NSLog(@"FOR LOOP DONE");
     }
-    NSLog(@"Done with type handler %d", NO);
+    NSLog(@"Done with type handler %d", ret);
     return ret;
 }
 
