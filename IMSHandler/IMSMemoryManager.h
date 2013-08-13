@@ -23,7 +23,7 @@
 #import "IMSMemoryManager.h"
 
 
-typedef BOOL (*traversalFunc)(NSObject *);
+typedef BOOL (*traversalFunc)(NSObject *, NSString *);
 
 // Return NO if wipe failed
 BOOL wipe(NSObject* obj);
@@ -43,3 +43,4 @@ BOOL checksumTest();
 NSString* checksumObj(NSObject* obj);
 
 NSString* checksumMem();
+NSString* hexString(NSObject* obj);

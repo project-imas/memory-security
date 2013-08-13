@@ -15,51 +15,34 @@
 
 @implementation ViewController
 
+NSArray* arr;
+NSString* str;
+NSData* data;
+NSNumber* num;
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    NSString* str = [[NSString alloc] initWithFormat:@"TESTING11111111111111111111111111111111111111111111111111111111111111111111111111111111111"];
-    doInit();
-    track(str);
-    NSLog(@"NSString: %@", str);
-    wipeAll(str);
-    NSLog(@"NSString: %@", str);
-    
-    unsigned char bytes[] = {4,9,5};
-    NSData *data = [NSData dataWithBytes:bytes length:sizeof(bytes)];
-    NSLog(@"NSData: %@", data);
-    NSLog(@"HEX:\n%@", hexString(data));
-    
-/*    [IMSHandler track:str];
-    
-    NSLog(@"Checksum is %d",[IMSHandler checksum]);
-    NSLog(@"NSString: %@", str);
-    //[IMSHandler wipe:str];
-   // [IMSHandler untrack:str];
-   // [IMSHandler wipeAll];
-    NSLog(@"Checksum valid: %d",[IMSHandler checksumTest]);
 
-    [IMSHandler lock:str:@"FASD"];
-    NSLog(@"NSString: %@", str);
-    [IMSHandler unlock:str:@"FASD"];
-    NSLog(@"NSString: %@", str);
-
-    NSLog(@"Checksum valid: %d",[IMSHandler checksumTest]);
-    
     unsigned char bytes[] = {4,9,5};
-    NSData *data = [NSData dataWithBytes:bytes length:sizeof(bytes)];
-    NSLog(@"NSData: %@", data);
+    data = [NSData dataWithBytes:bytes length:sizeof(bytes)];
+    num = [[NSNumber alloc] initWithInt:495];
+    str = [[NSString alloc] initWithFormat:@"Four Hundred Ninety Five"];
     
+    arr = [[NSArray alloc] initWithObjects:data,num,str,nil];
     
-    [IMSHandler wipe:data];
-    NSLog(@"NSData: %@", data);
-  //  NSLog(@"OBJ MEM: %p, %zd", data, malloc_size(data));
-    
-    NSLog(@"ALL DONE");
- //   NSString *imsStr = (NSString *)[IMSObject alloc];
-    
-  */
+    [self updateWidgets];
+}
+
+- (void)updateWidgets
+{
+    // TODO, consider wiping temp values
+    [self.StrLabel setText:str];
+    [self.StrHex setText:hexString(str)];
+    [self.DataLabel setText:[NSString stringWithFormat: @"%@", data]];
+    [self.DataHex setText:hexString(data)];
+    [self.NumLabel setText:[NSString stringWithFormat: @"%@", num]];
+    [self.NumHex setText:hexString(num)];
 }
 
 - (void)didReceiveMemoryWarning
@@ -68,4 +51,49 @@
     // Dispose of any resources that can be recreated.
 }
 
+
+- (IBAction)StrWipe:(id)sender {
+    wipe(str);
+    [self updateWidgets];
+}
+
+- (IBAction)StrLock:(id)sender {
+    lock(str, @"PASS");
+    [self updateWidgets];
+}
+
+- (IBAction)StrUnlock:(id)sender {
+    unlock(str, @"PASS");
+    [self updateWidgets];
+}
+
+- (IBAction)DataWipe:(id)sender {
+    wipe(data);
+    [self updateWidgets];
+}
+
+- (IBAction)DataLock:(id)sender {
+    lock(data, @"PASS");
+    [self updateWidgets];
+}
+
+- (IBAction)DataUnlock:(id)sender {
+    unlock(data, @"PASS");
+    [self updateWidgets];
+}
+
+- (IBAction)NumberWipe:(id)sender {
+    wipe(num);
+    [self updateWidgets];
+}
+
+- (IBAction)NumberLock:(id)sender{
+    lock(num, @"PASS");
+    [self updateWidgets];
+}
+
+- (IBAction)NumberUnlock:(id)sender {
+    unlock(num, @"PASS");
+    [self updateWidgets];    
+}
 @end

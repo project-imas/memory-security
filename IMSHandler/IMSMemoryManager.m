@@ -34,9 +34,9 @@ void* getStart(NSObject* obj) {
     if([obj isKindOfClass:[NSString class]]) {
         return ((__bridge void*)obj + 9);
     } else if([obj isKindOfClass:[NSData class]]) {
-        return ((__bridge void*)obj + 10);
+        return ((__bridge void*)obj + 12);
     } else if([obj isKindOfClass:[NSNumber class]]) {
-        return ((__bridge void*)obj + 6);
+        return ((__bridge void*)obj + 8);
     } else if([obj isKindOfClass:[NSArray class]]) {
         return ((__bridge void*)obj + 4);
     } else {
@@ -48,9 +48,9 @@ int getSize(NSObject* obj) {
     if([obj isKindOfClass:[NSString class]]) {
         return (malloc_size((__bridge void*)obj) - 9);
     } else if([obj isKindOfClass:[NSData class]]) {
-        return (malloc_size((__bridge void*)obj) - 10);
+        return (malloc_size((__bridge void*)obj) - 12);
     } else if([obj isKindOfClass:[NSNumber class]]) {
-        return (malloc_size((__bridge void*)obj) - 6);
+        return (malloc_size((__bridge void*)obj) - 8);
     } else if([obj isKindOfClass:[NSArray class]]) {
         return (malloc_size((__bridge void*)obj) - 4);
     } else {
@@ -58,22 +58,30 @@ int getSize(NSObject* obj) {
     }
 }
 
-BOOL handleType(NSObject* obj, traversalFunc f) {
+
+// Return yes, if calling function should continue on
+// no means caller should return immediately
+BOOL handleType(NSObject* obj, NSString* pass, traversalFunc f) {
     BOOL ret = YES;
     if([obj isKindOfClass:[NSArray class]]){
+        ret = NO;
         for( id newObj in (NSArray*)obj) {
-            (*f)(newObj);
+            (*f)(newObj, pass);
         }
     }
     NSLog(@"Done with type handler %d", ret);
     return ret;
 }
 
+// Wrapper for handling function ptr
+BOOL wipeWrapper(NSObject* obj, NSString* ignore) {
+    return wipe(obj);
+}
 
 // Return NO if wipe failed
 BOOL wipe(NSObject* obj) {
     NSLog(@"Object pointer: %p", obj);
-    if(handleType(obj, &wipe) == YES) {
+    if(handleType(obj, @"", &wipeWrapper) == YES) {
         NSLog(@"WIPE OBJ");
         memset( getStart(obj), 0, getSize(obj));
     }
@@ -122,15 +130,16 @@ BOOL cryptHelper(NSObject* obj, NSString* pass, CCOperation op) {
     
     
     size_t numBytesEncrypted = 0;
-    CCCryptorStatus cryptStatus = CCCrypt(op, kCCAlgorithmAES128,
+    CCCryptorStatus cryptStatus = CCCrypt(op,
+                                          kCCAlgorithmAES128,
                                           kCCOptionPKCS7Padding,
                                           keyPtr, kCCKeySizeAES256,
                                           NULL,
-                                          (__bridge void*)obj + 9,
+                                          getStart(obj),
                                           dataLength,
                                           buffer, bufferSize,
                                           &numBytesEncrypted);
-    memcpy(getStart(obj), buffer, getSize(obj));
+    memcpy(getStart(obj), buffer, dataLength);
     free(buffer);
     
     // TODO: Make sure key is wiped
@@ -139,11 +148,15 @@ BOOL cryptHelper(NSObject* obj, NSString* pass, CCOperation op) {
 }
 
 BOOL lock(NSObject* obj, NSString* pass) {
-    return cryptHelper(obj, pass, kCCEncrypt);
+  //  if(handleType(obj, @"", &lock) == YES) {
+        return cryptHelper(obj, pass, kCCEncrypt);
+  //  } else return YES;
 }
 
 BOOL unlock(NSObject* obj, NSString* pass) {
-    return cryptHelper(obj, pass, kCCDecrypt);
+   // if(handleType(obj, @"", &unlock) == YES) {
+        return cryptHelper(obj, pass, kCCDecrypt);
+   // } else return YES;
 }
 
 BOOL lockAll(NSObject* obj, NSString* pass) {
