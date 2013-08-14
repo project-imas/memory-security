@@ -23,6 +23,7 @@
 		3E2FB17A17907AF30077102D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E2FB15217907AF30077102D /* Foundation.framework */; };
 		3E2FB18217907AF30077102D /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3E2FB18017907AF30077102D /* InfoPlist.strings */; };
 		3E2FB18517907AF30077102D /* Memory_Security_DemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E2FB18417907AF30077102D /* Memory_Security_DemoTests.m */; };
+		3E68687117BBE39000E52F11 /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3E68686F17BBE39000E52F11 /* MainStoryboard_iPad.storyboard */; };
 		3E77678817B426FF00828BC0 /* IMSMemoryManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E77678717B426FF00828BC0 /* IMSMemoryManager.m */; };
 /* End PBXBuildFile section */
 
@@ -59,6 +60,7 @@
 		3E2FB18117907AF30077102D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		3E2FB18317907AF30077102D /* Memory_Security_DemoTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Memory_Security_DemoTests.h; sourceTree = "<group>"; };
 		3E2FB18417907AF30077102D /* Memory_Security_DemoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Memory_Security_DemoTests.m; sourceTree = "<group>"; };
+		3E68687017BBE39000E52F11 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
 		3E77678617B426FF00828BC0 /* IMSMemoryManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMSMemoryManager.h; sourceTree = "<group>"; };
 		3E77678717B426FF00828BC0 /* IMSMemoryManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMSMemoryManager.m; sourceTree = "<group>"; };
 		3EC8CDC11795E79A0057B1E0 /* MSObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSObject.h; sourceTree = "<group>"; };
@@ -131,6 +133,7 @@
 		3E2FB15617907AF30077102D /* Memory Security Demo */ = {
 			isa = PBXGroup;
 			children = (
+				3E68686F17BBE39000E52F11 /* MainStoryboard_iPad.storyboard */,
 				3E2FB15F17907AF30077102D /* AppDelegate.h */,
 				3E2FB16017907AF30077102D /* AppDelegate.m */,
 				3E2FB16817907AF30077102D /* MainStoryboard_iPhone.storyboard */,
@@ -251,6 +254,7 @@
 				3E2FB16517907AF30077102D /* Default@2x.png in Resources */,
 				3E2FB16717907AF30077102D /* Default-568h@2x.png in Resources */,
 				3E2FB16A17907AF30077102D /* MainStoryboard_iPhone.storyboard in Resources */,
+				3E68687117BBE39000E52F11 /* MainStoryboard_iPad.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -333,6 +337,14 @@
 				3E2FB18117907AF30077102D /* en */,
 			);
 			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		3E68686F17BBE39000E52F11 /* MainStoryboard_iPad.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				3E68687017BBE39000E52F11 /* en */,
+			);
+			name = MainStoryboard_iPad.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
