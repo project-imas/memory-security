@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3E2B31ED17AC4F8D00B48369 /* IMSHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E2B31EC17AC4F8D00B48369 /* IMSHandler.m */; };
 		3E2FB15117907AF30077102D /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E2FB15017907AF30077102D /* UIKit.framework */; };
 		3E2FB15317907AF30077102D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E2FB15217907AF30077102D /* Foundation.framework */; };
 		3E2FB15517907AF30077102D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E2FB15417907AF30077102D /* CoreGraphics.framework */; };
@@ -24,6 +23,7 @@
 		3E2FB17A17907AF30077102D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E2FB15217907AF30077102D /* Foundation.framework */; };
 		3E2FB18217907AF30077102D /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3E2FB18017907AF30077102D /* InfoPlist.strings */; };
 		3E2FB18517907AF30077102D /* Memory_Security_DemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E2FB18417907AF30077102D /* Memory_Security_DemoTests.m */; };
+		3E77678817B426FF00828BC0 /* IMSMemoryManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E77678717B426FF00828BC0 /* IMSMemoryManager.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,8 +37,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		3E2B31EB17AC4F8D00B48369 /* IMSHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMSHandler.h; sourceTree = "<group>"; };
-		3E2B31EC17AC4F8D00B48369 /* IMSHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMSHandler.m; sourceTree = "<group>"; };
 		3E2FB14D17907AF30077102D /* Memory Security Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Memory Security Demo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3E2FB15017907AF30077102D /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		3E2FB15217907AF30077102D /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -61,6 +59,8 @@
 		3E2FB18117907AF30077102D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		3E2FB18317907AF30077102D /* Memory_Security_DemoTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Memory_Security_DemoTests.h; sourceTree = "<group>"; };
 		3E2FB18417907AF30077102D /* Memory_Security_DemoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Memory_Security_DemoTests.m; sourceTree = "<group>"; };
+		3E77678617B426FF00828BC0 /* IMSMemoryManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMSMemoryManager.h; sourceTree = "<group>"; };
+		3E77678717B426FF00828BC0 /* IMSMemoryManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMSMemoryManager.m; sourceTree = "<group>"; };
 		3EC8CDC11795E79A0057B1E0 /* MSObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSObject.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -91,8 +91,8 @@
 		3E2B31EA17AC4F7700B48369 /* IMSHandler */ = {
 			isa = PBXGroup;
 			children = (
-				3E2B31EB17AC4F8D00B48369 /* IMSHandler.h */,
-				3E2B31EC17AC4F8D00B48369 /* IMSHandler.m */,
+				3E77678617B426FF00828BC0 /* IMSMemoryManager.h */,
+				3E77678717B426FF00828BC0 /* IMSMemoryManager.m */,
 			);
 			path = IMSHandler;
 			sourceTree = "<group>";
@@ -288,7 +288,7 @@
 				3E2FB15D17907AF30077102D /* main.m in Sources */,
 				3E2FB16117907AF30077102D /* AppDelegate.m in Sources */,
 				3E2FB17017907AF30077102D /* ViewController.m in Sources */,
-				3E2B31ED17AC4F8D00B48369 /* IMSHandler.m in Sources */,
+				3E77678817B426FF00828BC0 /* IMSMemoryManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

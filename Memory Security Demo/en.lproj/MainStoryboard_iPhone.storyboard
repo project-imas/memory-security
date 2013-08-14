@@ -66,6 +66,9 @@
                                 <state key="highlighted">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
+                                <connections>
+                                    <action selector="StringTrack:" destination="2" eventType="touchUpInside" id="USN-jH-sHZ"/>
+                                </connections>
                             </button>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="NSString" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XEw-Hc-TyQ">
                                 <constraints>
@@ -93,10 +96,26 @@
                             </label>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="37q-JP-ijS">
                                 <items>
-                                    <barButtonItem title="Wipe" id="8ro-DT-jyq"/>
-                                    <barButtonItem title="Lock" id="cXL-z9-589"/>
-                                    <barButtonItem title="Unlock" id="W61-3Y-Z8u"/>
-                                    <barButtonItem title="Checksum" id="iWl-Kk-sxY"/>
+                                    <barButtonItem title="Wipe" id="8ro-DT-jyq">
+                                        <connections>
+                                            <action selector="WipeAll:" destination="2" id="cwS-2y-W9F"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem title="Lock" id="cXL-z9-589">
+                                        <connections>
+                                            <action selector="LockAll:" destination="2" id="hqN-cW-bra"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem title="Unlock" id="W61-3Y-Z8u">
+                                        <connections>
+                                            <action selector="UnlockAll:" destination="2" id="8Pq-7K-c9N"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem title="Checksum" id="iWl-Kk-sxY">
+                                        <connections>
+                                            <action selector="ChecksumAll:" destination="2" id="lnH-S3-o4b"/>
+                                        </connections>
+                                    </barButtonItem>
                                 </items>
                             </toolbar>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Gu9-eK-rVY">
@@ -162,6 +181,9 @@
                                 <state key="highlighted">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
+                                <connections>
+                                    <action selector="DataTrack:" destination="2" eventType="touchUpInside" id="06o-b5-IPn"/>
+                                </connections>
                             </button>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="NSData" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GmH-vb-QuB">
                                 <constraints>
@@ -250,6 +272,9 @@
                                 <state key="highlighted">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
+                                <connections>
+                                    <action selector="NumberTrack:" destination="2" eventType="touchUpInside" id="N2b-Wa-c7c"/>
+                                </connections>
                             </button>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="NSNumber" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="d0F-qV-STH">
                                 <constraints>
@@ -298,6 +323,7 @@
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
+                                    <action selector="ArrayWipe:" destination="2" eventType="touchUpInside" id="C3s-ao-tQO"/>
                                     <action selector="StrWipe:" destination="2" eventType="touchUpInside" id="w2O-vV-WVF"/>
                                 </connections>
                             </button>
@@ -311,6 +337,7 @@
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
+                                    <action selector="ArrayLock:" destination="2" eventType="touchUpInside" id="uu2-Yy-JFf"/>
                                     <action selector="StrLock:" destination="2" eventType="touchUpInside" id="xvd-gI-31n"/>
                                 </connections>
                             </button>
@@ -324,6 +351,7 @@
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
+                                    <action selector="ArrayUnlock:" destination="2" eventType="touchUpInside" id="4xk-JO-dBq"/>
                                     <action selector="StrUnlock:" destination="2" eventType="touchUpInside" id="1rL-5x-oQv"/>
                                 </connections>
                             </button>
@@ -339,6 +367,9 @@
                                 <state key="highlighted">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
+                                <connections>
+                                    <action selector="ArrayTrack:" destination="2" eventType="touchUpInside" id="ZrA-3G-XBu"/>
+                                </connections>
                             </button>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="NSArray" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dWj-7L-KOU">
                                 <constraints>
@@ -473,12 +504,17 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="ArrTrackButton" destination="Atv-XN-z4x" id="F23-LF-KGJ"/>
+                        <outlet property="ArrayLabel" destination="haZ-1C-gLf" id="ol3-Ll-fuY"/>
                         <outlet property="DataHex" destination="qYb-w8-oEj" id="B36-u5-0zg"/>
                         <outlet property="DataLabel" destination="xLN-TM-gKU" id="wfr-uy-SEf"/>
+                        <outlet property="DataTrackButton" destination="G5L-hc-uEX" id="da3-V9-0PV"/>
                         <outlet property="NumHex" destination="lBU-4d-AnD" id="5fL-0q-Kuu"/>
                         <outlet property="NumLabel" destination="lvZ-lv-UPk" id="6TG-gh-gbz"/>
+                        <outlet property="NumTrackButton" destination="47A-8u-V1R" id="sWS-cD-eNK"/>
                         <outlet property="StrHex" destination="2oS-th-M8i" id="aJp-pN-6dp"/>
                         <outlet property="StrLabel" destination="Kjl-mI-E8q" id="OYg-I2-9ci"/>
+                        <outlet property="StrTrackButton" destination="y86-FI-t8w" id="uvf-fw-hoq"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4" sceneMemberID="firstResponder"/>
@@ -492,21 +528,37 @@
         <class className="ViewController" superclassName="UIViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/ViewController.h"/>
             <relationships>
+                <relationship kind="action" name="ArrayLock:"/>
+                <relationship kind="action" name="ArrayTrack:"/>
+                <relationship kind="action" name="ArrayUnlock:"/>
+                <relationship kind="action" name="ArrayWipe:"/>
+                <relationship kind="action" name="ChecksumAll:"/>
                 <relationship kind="action" name="DataLock:"/>
+                <relationship kind="action" name="DataTrack:"/>
                 <relationship kind="action" name="DataUnlock:"/>
                 <relationship kind="action" name="DataWipe:"/>
+                <relationship kind="action" name="LockAll:"/>
                 <relationship kind="action" name="NumberLock:"/>
+                <relationship kind="action" name="NumberTrack:"/>
                 <relationship kind="action" name="NumberUnlock:"/>
                 <relationship kind="action" name="NumberWipe:"/>
                 <relationship kind="action" name="StrLock:"/>
                 <relationship kind="action" name="StrUnlock:"/>
                 <relationship kind="action" name="StrWipe:"/>
+                <relationship kind="action" name="StringTrack:"/>
+                <relationship kind="action" name="UnlockAll:"/>
+                <relationship kind="action" name="WipeAll:"/>
+                <relationship kind="outlet" name="ArrTrackButton" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="ArrayLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="DataHex" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="DataLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="DataTrackButton" candidateClass="UIButton"/>
                 <relationship kind="outlet" name="NumHex" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="NumLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="NumTrackButton" candidateClass="UIButton"/>
                 <relationship kind="outlet" name="StrHex" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="StrLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="StrTrackButton" candidateClass="UIButton"/>
             </relationships>
         </class>
     </classes>

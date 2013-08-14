@@ -20,6 +20,12 @@ NSString* str;
 NSData* data;
 NSNumber* num;
 
+BOOL checksumInit = NO;
+BOOL strTrack = NO;
+BOOL dataTrack = NO;
+BOOL numTrack = NO;
+BOOL arrTrack = NO;
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -43,6 +49,7 @@ NSNumber* num;
     [self.DataHex setText:hexString(data)];
     [self.NumLabel setText:[NSString stringWithFormat: @"%@", num]];
     [self.NumHex setText:hexString(num)];
+    [self.ArrayLabel setText:[NSString stringWithFormat: @"%@", arr]];
 }
 
 - (void)didReceiveMemoryWarning
@@ -67,6 +74,18 @@ NSNumber* num;
     [self updateWidgets];
 }
 
+- (IBAction)StringTrack:(id)sender {
+    if(strTrack == YES) {
+        untrack(str);
+        [self.StrTrackButton setTitle:@"Track" forState:UIControlStateNormal];
+        strTrack = NO;
+    } else {
+        track(str);
+        [self.StrTrackButton setTitle:@"Untrack" forState:UIControlStateNormal];
+        strTrack = YES;
+    }
+}
+
 - (IBAction)DataWipe:(id)sender {
     wipe(data);
     [self updateWidgets];
@@ -82,6 +101,18 @@ NSNumber* num;
     [self updateWidgets];
 }
 
+- (IBAction)DataTrack:(id)sender {
+    if(dataTrack == YES) {
+        untrack(data);
+        [self.DataTrackButton setTitle:@"Track" forState:UIControlStateNormal];
+        dataTrack = NO;
+    } else {
+        track(data);
+        [self.DataTrackButton setTitle:@"Untrack" forState:UIControlStateNormal];
+        dataTrack = YES;
+    }
+}
+
 - (IBAction)NumberWipe:(id)sender {
     wipe(num);
     [self updateWidgets];
@@ -95,5 +126,71 @@ NSNumber* num;
 - (IBAction)NumberUnlock:(id)sender {
     unlock(num, @"PASS");
     [self updateWidgets];    
+}
+
+- (IBAction)NumberTrack:(id)sender {
+    if(numTrack == YES) {
+        untrack(num);
+        [self.NumTrackButton setTitle:@"Track" forState:UIControlStateNormal];
+        numTrack = NO;
+    } else {
+        track(num);
+        [self.NumTrackButton setTitle:@"Untrack" forState:UIControlStateNormal];
+        numTrack = YES;
+    }
+}
+
+- (IBAction)ArrayWipe:(id)sender {
+    wipe(arr);
+    [self updateWidgets];
+}
+
+- (IBAction)ArrayLock:(id)sender {
+    lock(arr, @"PASS");
+    [self updateWidgets];
+}
+
+- (IBAction)ArrayUnlock:(id)sender {
+    unlock(arr, @"PASS");
+    [self updateWidgets];
+}
+
+- (IBAction)ArrayTrack:(id)sender {
+    if(arrTrack == YES) {
+        untrack(arr);
+        [self.ArrTrackButton setTitle:@"Track" forState:UIControlStateNormal];
+        arrTrack = NO;
+    } else {
+        track(arr);
+        [self.ArrTrackButton setTitle:@"Untrack" forState:UIControlStateNormal];
+        arrTrack = YES;
+    }
+}
+
+- (IBAction)WipeAll:(id)sender {
+    wipeAll();
+    [self updateWidgets];
+}
+
+- (IBAction)LockAll:(id)sender {
+}
+
+- (IBAction)UnlockAll:(id)sender {
+}
+
+- (IBAction)ChecksumAll:(id)sender {
+    UIAlertView* alert;
+    if(checksumInit == NO) {
+       alert = [[UIAlertView alloc] initWithTitle:@"Checksum Saved" message:@"Subsequent checksum comparison will  alert whether there was a change or not" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+        checksumInit = YES;
+        checksumMem();
+    } else {
+        if(checksumTest()) {
+          alert = [[UIAlertView alloc] initWithTitle:@"Checksum Matched" message:@"The memory of tracked objects has not changed" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+        } else {
+          alert = [[UIAlertView alloc] initWithTitle:@"Checksum Failed" message:@"The memory of tracked objects was different" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];  
+        }
+    }
+    [alert show];
 }
 @end

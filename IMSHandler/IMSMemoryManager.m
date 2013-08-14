@@ -148,15 +148,15 @@ BOOL cryptHelper(NSObject* obj, NSString* pass, CCOperation op) {
 }
 
 BOOL lock(NSObject* obj, NSString* pass) {
-  //  if(handleType(obj, @"", &lock) == YES) {
+    if(handleType(obj, @"", &lock) == YES) {
         return cryptHelper(obj, pass, kCCEncrypt);
-  //  } else return YES;
+    } else return YES;
 }
 
 BOOL unlock(NSObject* obj, NSString* pass) {
-   // if(handleType(obj, @"", &unlock) == YES) {
+    if(handleType(obj, @"", &unlock) == YES) {
         return cryptHelper(obj, pass, kCCDecrypt);
-   // } else return YES;
+    } else return YES;
 }
 
 BOOL lockAll(NSObject* obj, NSString* pass) {
@@ -174,7 +174,7 @@ BOOL unlockAll(NSObject* obj, NSString* pass) {
 BOOL checksumTest() {
     initMem();
     NSString* checksumTmp = [checksumStr copy];
-    NSString* newSum = checksumMem();
+    NSString* newSum = checksumMemHelper(NO);
     
     if([checksumTmp isEqualToString:newSum]) return YES;
     else return NO;
@@ -194,7 +194,7 @@ NSString* checksumObj(NSObject* obj) {
     return [NSString stringWithString:hex];
 }
 
-NSString* checksumMem() {
+NSString* checksumMemHelper(BOOL saveStr) {
     initMem();
     NSMutableString *hex = [[NSMutableString alloc] init];
     
@@ -202,6 +202,14 @@ NSString* checksumMem() {
         [hex appendFormat:@"%p", obj];
         [hex appendString:checksumObj(obj)];
     }
-    checksumStr = [NSString stringWithString:hex];
-    return [checksumStr copy];
+    if(saveStr) {
+        checksumStr = [NSString stringWithString:hex];
+        return [checksumStr copy];
+    } else {
+        return [NSString stringWithString:hex];
+    }
+}
+
+NSString* checksumMem() {
+    checksumMemHelper(YES);
 }

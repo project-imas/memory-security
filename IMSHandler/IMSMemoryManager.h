@@ -39,6 +39,7 @@ BOOL lockAll(NSObject* obj, NSString* pass);
 BOOL unlockAll(NSObject* obj, NSString* pass) ;
 
 BOOL checksumTest();
+NSString* checksumMemHelper(BOOL saveStr);
 
 NSString* checksumObj(NSObject* obj);
 
