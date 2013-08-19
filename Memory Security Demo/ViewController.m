@@ -33,7 +33,7 @@ BOOL arrTrack = NO;
     unsigned char bytes[] = {4,9,5};
     data = [NSData dataWithBytes:bytes length:sizeof(bytes)];
     num = [[NSNumber alloc] initWithInt:495];
-    str = [[NSString alloc] initWithFormat:@"Four Hundred Ninety Five"];
+    str = [[NSString alloc] initWithFormat:@"Four hundred ninety five"];
     
     arr = [[NSArray alloc] initWithObjects:data,num,str,nil];
     

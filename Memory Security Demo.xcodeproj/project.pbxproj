@@ -411,10 +411,14 @@
 		3E2FB18917907AF30077102D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer: Joseph Goerbel (33NXW7GS6V)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Memory Security Demo/Memory Security Demo-Prefix.pch";
 				INFOPLIST_FILE = "Memory Security Demo/Memory Security Demo-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "D0855322-111A-462F-BE50-71349EFB66A8";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -422,10 +426,14 @@
 		3E2FB18A17907AF30077102D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer: Joseph Goerbel (33NXW7GS6V)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Memory Security Demo/Memory Security Demo-Prefix.pch";
 				INFOPLIST_FILE = "Memory Security Demo/Memory Security Demo-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "D0855322-111A-462F-BE50-71349EFB66A8";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

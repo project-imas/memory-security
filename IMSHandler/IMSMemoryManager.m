@@ -129,21 +129,30 @@ BOOL cryptHelper(NSObject* obj, NSString* pass, CCOperation op) {
     NSUInteger dataLength = getSize(obj);
     
     
-    size_t numBytesEncrypted = 0;
+    size_t movedBytes = 0;
     CCCryptorStatus cryptStatus = CCCrypt(op,
                                           kCCAlgorithmAES128,
                                           kCCOptionPKCS7Padding,
-                                          keyPtr, kCCKeySizeAES256,
+                                          keyPtr, kCCKeySizeAES128,
                                           NULL,
                                           getStart(obj),
                                           dataLength,
                                           buffer, bufferSize,
-                                          &numBytesEncrypted);
+                                          &movedBytes);
     memcpy(getStart(obj), buffer, dataLength);
     free(buffer);
-    
+    NSLog(@"MovedBytes: %zd -- dataLength: %zd -- bufferSize: %zd", movedBytes, dataLength, bufferSize);
     // TODO: Make sure key is wiped
-    // TODO: Return based on cryptStatus  --  if (cryptStatus == kCCSuccess)
+    // TODO: Return based on cryptStatus 
+    if (cryptStatus == kCCSuccess){
+        NSLog(@"SUCCESS");
+    } else if(cryptStatus == kCCDecodeError) {
+        NSLog(@"DECODE ERROR");
+    } else if(cryptStatus == kCCBufferTooSmall) {
+        NSLog(@"BUFFER SIZE ERROR");
+    } else {
+        NSLog(@"OTHER ERROR");
+    }
     return YES;
 }
 
@@ -211,5 +220,5 @@ NSString* checksumMemHelper(BOOL saveStr) {
 }
 
 NSString* checksumMem() {
-    checksumMemHelper(YES);
+    return checksumMemHelper(YES);
 }
