@@ -6,6 +6,8 @@ The "iMAS Secure Memory" framework provides a set of tools for securing, clearin
 
 ## Vulnerabilities Addressed
 
+ * CWE-316: Cleartext Storage of Sensitive Information in Memory
+ * CWE-244: Improper Clearing of Heap Memory Before Release
 
 ## Installation
 
