@@ -61,6 +61,12 @@ The "iMAS Secure Memory" framework provides a set of tools for securing, clearin
 
 ## Caution on password usage
 
+Note that the included demo application uses a hardcoded string for passwords, this severely weakens the security provided.  For the sake of showing just the functions provided by memory-security without additional dependencies a realistic option was avoided.
+
+For a viable way to store application passwords look into the [Secure Foundation](https://github.com/project-imas/securefoundation) project, which provides access to the device's keychain.
+
+Also to increase overall security any password passed to lock/unlock should have wipe() ran on it immediately after use (As shown in the second part of the first use case). 
+
 ## Use case 1: Sensitive variable clearing
 
 Suppose we have a variable that contains sensitive data, we want to limit it's time in memory so that if an attacker gets access to the program's runnign memory they have less chance of seeing it. One strategy is to immediately wipe an object's memory right after use:
