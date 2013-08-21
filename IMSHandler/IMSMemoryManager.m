@@ -9,17 +9,19 @@
 #import "IMSMemoryManager.h"
 
 static NSPointerArray* unlockedPointers;
-static NSMutableArray* lockedPointers;
+static NSPointerArray* lockedPointers;
 static NSString* checksumStr;
 
 void initMem(){
     if(!unlockedPointers) {
         NSLog(@"Initializing");
         unlockedPointers =[[NSPointerArray alloc] init];
+        lockedPointers = [[NSPointerArray alloc] init];
+
     }
 }
 
-NSString* hexString(NSObject* obj){
+extern inline NSString* hexString(NSObject* obj){
     NSMutableString *hex = [[NSMutableString alloc] init];
     unsigned char* rawObj = (__bridge void*) obj;
     int size = malloc_size((__bridge void*) obj);
@@ -30,7 +32,7 @@ NSString* hexString(NSObject* obj){
     return [NSString stringWithString:hex];
 }
 
-void* getStart(NSObject* obj) {
+extern inline void* getStart(NSObject* obj) {
     if([obj isKindOfClass:[NSString class]]) {
         return ((__bridge void*)obj + 9);
     } else if([obj isKindOfClass:[NSData class]]) {
@@ -44,7 +46,7 @@ void* getStart(NSObject* obj) {
     }
 }
 
-int getSize(NSObject* obj) {
+extern inline int getSize(NSObject* obj) {
     if([obj isKindOfClass:[NSString class]]) {
         return (malloc_size((__bridge void*)obj) - 9);
     } else if([obj isKindOfClass:[NSData class]]) {
@@ -61,7 +63,7 @@ int getSize(NSObject* obj) {
 
 // Return yes, if calling function should continue on
 // no means caller should return immediately
-BOOL handleType(NSObject* obj, NSString* pass, traversalFunc f) {
+extern inline BOOL handleType(NSObject* obj, NSString* pass, traversalFunc f) {
     BOOL ret = YES;
     if([obj isKindOfClass:[NSArray class]]){
         ret = NO;
@@ -74,12 +76,12 @@ BOOL handleType(NSObject* obj, NSString* pass, traversalFunc f) {
 }
 
 // Wrapper for handling function ptr
-BOOL wipeWrapper(NSObject* obj, NSString* ignore) {
+extern inline BOOL wipeWrapper(NSObject* obj, NSString* ignore) {
     return wipe(obj);
 }
 
 // Return NO if wipe failed
-BOOL wipe(NSObject* obj) {
+extern inline BOOL wipe(NSObject* obj) {
     NSLog(@"Object pointer: %p", obj);
     if(handleType(obj, @"", &wipeWrapper) == YES) {
         NSLog(@"WIPE OBJ");
@@ -90,14 +92,14 @@ BOOL wipe(NSObject* obj) {
 
 
 // Return NO if object already tracked
-BOOL track(NSObject* obj) {
+extern inline BOOL track(NSObject* obj) {
     initMem();
     [unlockedPointers addPointer:(void *)obj];
     NSLog(@"TRACK %p -- %d", obj, [unlockedPointers count]);
     return YES;
 }
 
-BOOL untrack(NSObject* obj) {
+extern inline BOOL untrack(NSObject* obj) {
     initMem();
     for(int i = 0; i < [unlockedPointers count]; i ++){
         if([unlockedPointers pointerAtIndex:i] == (__bridge void *)(obj)){
@@ -110,7 +112,7 @@ BOOL untrack(NSObject* obj) {
 
 
 // Return count of how many wiped
-int wipeAll() {
+extern inline int wipeAll() {
     initMem();
     for(id obj in unlockedPointers) wipe(obj);
     
@@ -118,7 +120,7 @@ int wipeAll() {
 }
 
 // Return YES is the object was encrypted
-BOOL cryptHelper(NSObject* obj, NSString* pass, CCOperation op) {
+extern inline BOOL cryptHelper(NSObject* obj, NSString* pass, CCOperation op) {
     NSLog(@"Object pointer: %p", obj);
     char keyPtr[kCCKeySizeAES256+1];
     bzero(keyPtr, sizeof(keyPtr));
@@ -156,31 +158,40 @@ BOOL cryptHelper(NSObject* obj, NSString* pass, CCOperation op) {
     return YES;
 }
 
-BOOL lock(NSObject* obj, NSString* pass) {
+extern inline BOOL lock(NSObject* obj, NSString* pass) {
     if(handleType(obj, @"", &lock) == YES) {
         return cryptHelper(obj, pass, kCCEncrypt);
     } else return YES;
 }
 
-BOOL unlock(NSObject* obj, NSString* pass) {
+extern inline BOOL unlock(NSObject* obj, NSString* pass) {
     if(handleType(obj, @"", &unlock) == YES) {
         return cryptHelper(obj, pass, kCCDecrypt);
     } else return YES;
 }
 
-BOOL lockAll(NSObject* obj, NSString* pass) {
-    NSLog(@"NOT IMPLEMENTED");
+extern inline BOOL lockAll(NSString* pass) {
+    initMem();
+    for(id obj in unlockedPointers) {
+        lock(obj, pass);
+        [lockedPointers addPointer:(void *)obj];
+    }
     
     return YES;
 }
 
-BOOL unlockAll(NSObject* obj, NSString* pass) {
-    NSLog(@"NOT IMPLEMENTED");
-    
+extern inline BOOL unlockAll(NSString* pass) {
+    initMem();
+    for(id obj in lockedPointers) {
+        unlock(obj, pass);
+    }
+    for(int i = 0; i < [lockedPointers count]; i ++) {
+       [lockedPointers removePointerAtIndex:i];
+    }
     return YES;
 }
 
-BOOL checksumTest() {
+extern inline BOOL checksumTest() {
     initMem();
     NSString* checksumTmp = [checksumStr copy];
     NSString* newSum = checksumMemHelper(NO);
@@ -189,7 +200,7 @@ BOOL checksumTest() {
     else return NO;
 }
 
-NSString* checksumObj(NSObject* obj) {
+extern inline NSString* checksumObj(NSObject* obj) {
     NSLog(@"Object pointer: %p", obj);
     NSMutableString *hex = [[NSMutableString alloc] init];
     
@@ -203,7 +214,7 @@ NSString* checksumObj(NSObject* obj) {
     return [NSString stringWithString:hex];
 }
 
-NSString* checksumMemHelper(BOOL saveStr) {
+extern inline NSString* checksumMemHelper(BOOL saveStr) {
     initMem();
     NSMutableString *hex = [[NSMutableString alloc] init];
     
@@ -219,6 +230,6 @@ NSString* checksumMemHelper(BOOL saveStr) {
     }
 }
 
-NSString* checksumMem() {
+extern inline NSString* checksumMem() {
     return checksumMemHelper(YES);
 }

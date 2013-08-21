@@ -26,22 +26,21 @@
 typedef BOOL (*traversalFunc)(NSObject *, NSString *);
 
 // Return NO if wipe failed
-BOOL wipe(NSObject* obj);
+extern inline BOOL wipe(NSObject* obj);
 // Return NO if object already tracked
-BOOL track(NSObject* obj);
+extern inline BOOL track(NSObject* obj);
 
-BOOL untrack(NSObject* obj);
-int wipeAll();
-BOOL lock(NSObject* obj, NSString* pass);
-BOOL unlock(NSObject* obj, NSString* pass);
-BOOL lockAll(NSObject* obj, NSString* pass);
+extern inline BOOL untrack(NSObject* obj);
+extern inline int wipeAll();
+extern inline BOOL lock(NSObject* obj, NSString* pass);
+extern inline BOOL unlock(NSObject* obj, NSString* pass);
+extern inline BOOL lockAll(NSString* pass);
 
-BOOL unlockAll(NSObject* obj, NSString* pass) ;
+extern inline BOOL unlockAll(NSString* pass) ;
 
-BOOL checksumTest();
-NSString* checksumMemHelper(BOOL saveStr);
+extern inline BOOL checksumTest();
+extern inline NSString* checksumMemHelper(BOOL saveStr);
+extern inline NSString* checksumObj(NSObject* obj);
+extern inline NSString* checksumMem();
 
-NSString* checksumObj(NSObject* obj);
-
-NSString* checksumMem();
 NSString* hexString(NSObject* obj);
