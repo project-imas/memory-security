@@ -48,5 +48,6 @@
 - (IBAction)UnlockAll:(id)sender;
 - (IBAction)ChecksumAll:(id)sender;
 
+- (void)updateWidgets;
 
 @end

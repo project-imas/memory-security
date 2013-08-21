@@ -173,9 +173,14 @@ BOOL arrTrack = NO;
 }
 
 - (IBAction)LockAll:(id)sender {
+    lockAll(@"TEST");
+    [self updateWidgets];
+    
 }
 
 - (IBAction)UnlockAll:(id)sender {
+    unlockAll(@"TEST");
+    [self updateWidgets];
 }
 
 - (IBAction)ChecksumAll:(id)sender {
