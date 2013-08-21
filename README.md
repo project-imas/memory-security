@@ -71,7 +71,13 @@ Suppose we have a variable that contains sensitive data, we want to limit it's t
    wipe(sensitiveData);
 ```
 
-This ensures that the data is only in memory during the processing.  Similarly we could unlock the data and immediately lock it again every time a sensitive variable is used.
+This ensures that the data is only in memory during the processing.  
+
+
+Similarly we could unlock the data and immediately lock it again every time a sensitive variable is used:
+
+![Lock Unlock Example](readmeImages/lockUnlockExample.JPG)
+
 
 ```
    NSString* sensitiveData;
@@ -87,6 +93,8 @@ This ensures that the data is only in memory during the processing.  Similarly w
 ## Use case 2: Wiping memory when application is not active
 
 When the device is locked, the app closed (hidden or terminated) we want to wipe all sensitive data.
+
+![Wipe on exit example](readmeImages/wipeAllExample.JPG)
 
 We start by tracking variables we care about up front:
 ```
@@ -117,6 +125,8 @@ A program could also add the ability to lockAll() and unlockAll() to WillResignA
 ## Use case 3: Check for memory tampering
 
 We may want to see if an attacker or external process is modifying our applications memory for sensitive data.  By tracking variables in regions and periodically using the checksum features we may be able to detect this.
+
+![Checksum example](readmeImages/checksumExample.JPG)
 
 Initial tracking and checksum:
 ```
