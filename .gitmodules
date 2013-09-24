@@ -1,0 +1,6 @@
+[submodule "vendor/securefoundation"]
+	path = vendor/securefoundation
+	url = git@github.com:project-imas/securefoundation.git
+[submodule "vendor/openssl"]
+	path = vendor/openssl
+	url = https://github.com/sqlcipher/openssl-xcode.git

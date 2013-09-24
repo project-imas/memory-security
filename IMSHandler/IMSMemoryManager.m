@@ -119,6 +119,62 @@ extern inline int wipeAll() {
     return [unlockedPointers count];
 }
 
+#ifdef iMAS_SecureFoundation
+// TODO - obfuscate these
+NSString *_saltS = @"12345678";
+NSString *_ivS = @"1234567812345678";
+
+extern inline BOOL cryptHelperEncrypt(NSObject* obj, NSString* pass) {
+    NSData *salt = [_saltS dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *iv = [_ivS dataUsingEncoding:NSUTF8StringEncoding];
+    
+    NSData *key = IMSCryptoUtilsDeriveKey([pass dataUsingEncoding:NSUTF8StringEncoding], kCCKeySizeAES256, salt);
+    NSUInteger dataLength = getSize(obj);
+    if (!dataLength)
+        return NO;
+    NSData *plain = [NSData dataWithBytesNoCopy:(void *)(getStart(obj)) length:dataLength];
+    NSLog(@"plaintext size is: %zd", [plain length]);
+    NSData *ciphertext = IMSCryptoUtilsSimpleEncryptData(plain, key, iv);
+    if (!ciphertext)
+      return NO;
+
+    //** copy ciphertext over obj
+    memcpy(getStart(obj), [ciphertext bytes], dataLength);
+
+    NSLog(@"MovedBytes: %zd -- dataLength: %zd", [ciphertext length], dataLength);
+
+    // TODO: Make sure key is wiped
+    // TODO: Return based on cryptStatus 
+    return YES;
+}
+
+extern inline BOOL cryptHelperDecrypt(NSObject* obj, NSString* pass) {
+    NSData *salt = [_saltS dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *iv = [_ivS dataUsingEncoding:NSUTF8StringEncoding];
+
+    NSData *key = IMSCryptoUtilsDeriveKey([pass dataUsingEncoding:NSUTF8StringEncoding], kCCKeySizeAES256, salt);
+    NSUInteger dataLength = getSize(obj);
+    if (!dataLength)
+        return NO;
+    NSData *ciphertext = [NSData dataWithBytesNoCopy:(void *)(getStart(obj)) length:dataLength];
+    NSData *plain = IMSCryptoUtilsSimpleDecryptData(ciphertext, key, iv);
+    if (!plain)
+      return NO;
+
+    //** copy plaintext over obj
+    memcpy(getStart(obj), [plain bytes], dataLength);
+
+    NSLog(@"MovedBytes: %zd -- dataLength: %zd", [plain length], dataLength);
+
+    
+    // TODO: Make sure key is wiped
+    // TODO: Return based on cryptStatus 
+    return YES;
+}
+
+#else
+//** Apple crypto
+
 // Return YES is the object was encrypted
 extern inline BOOL cryptHelper(NSObject* obj, NSString* pass, CCOperation op) {
     NSLog(@"Object pointer: %p", obj);
@@ -128,9 +184,12 @@ extern inline BOOL cryptHelper(NSObject* obj, NSString* pass, CCOperation op) {
     
     size_t bufferSize = getSize(obj) + kCCBlockSizeAES128;
     void *buffer = malloc(bufferSize);
+    if (!buffer)
+        return NO;
     NSUInteger dataLength = getSize(obj);
-    
-    
+    if (!dataLength)
+        return NO;
+        
     size_t movedBytes = 0;
     CCCryptorStatus cryptStatus = CCCrypt(op,
                                           kCCAlgorithmAES128,
@@ -150,25 +209,45 @@ extern inline BOOL cryptHelper(NSObject* obj, NSString* pass, CCOperation op) {
         NSLog(@"SUCCESS");
     } else if(cryptStatus == kCCDecodeError) {
         NSLog(@"DECODE ERROR");
+        return NO;
     } else if(cryptStatus == kCCBufferTooSmall) {
         NSLog(@"BUFFER SIZE ERROR");
+        return NO;
     } else {
         NSLog(@"OTHER ERROR");
+        return NO;
     }
     return YES;
 }
 
+//** end #ifdef iMAS_SecureFoundation
+#endif
+
+
+
 extern inline BOOL lock(NSObject* obj, NSString* pass) {
     if(handleType(obj, @"", &lock) == YES) {
-        return cryptHelper(obj, pass, kCCEncrypt);
-    } else return YES;
+#ifdef iMAS_SecureFoundation
+      return cryptHelperEncrypt(obj, pass);
+#else
+      return cryptHelper(obj, pass, kCCEncrypt);
+#endif
+    } else
+      return YES;
 }
 
 extern inline BOOL unlock(NSObject* obj, NSString* pass) {
-    if(handleType(obj, @"", &unlock) == YES) {
-        return cryptHelper(obj, pass, kCCDecrypt);
-    } else return YES;
+   if(handleType(obj, @"", &unlock) == YES) {
+#ifdef iMAS_SecureFoundation
+     return cryptHelperDecrypt(obj, pass);
+#else
+     return cryptHelper(obj, pass, kCCDecrypt);
+#endif
+    } else
+     return YES;
 }
+
+
 
 extern inline BOOL lockAll(NSString* pass) {
     initMem();
@@ -203,6 +282,19 @@ extern inline BOOL checksumTest() {
 extern inline NSString* checksumObj(NSObject* obj) {
     NSLog(@"Object pointer: %p", obj);
     NSMutableString *hex = [[NSMutableString alloc] init];
+
+#ifdef iMAS_SecureFoundation
+    unsigned char* digest = malloc(SHA256_DIGEST_LENGTH);
+    digest = IMSHashBytes_SHA256((__bridge void*)obj, malloc_size((__bridge void*)obj));
+
+   if (digest) {
+      for (NSUInteger i=0; i < SHA256_DIGEST_LENGTH; i++)
+        [hex appendFormat:@"%02x", digest[i]];
+    }
+    free(digest);
+    return [NSString stringWithString:hex];
+#else
+
     
     unsigned char* digest = malloc(CC_SHA1_DIGEST_LENGTH);
     if (CC_SHA1((__bridge void*)obj, malloc_size((__bridge void*)obj), digest)) {
@@ -210,8 +302,9 @@ extern inline NSString* checksumObj(NSObject* obj) {
             [hex appendFormat:@"%02x", digest[i]];
     }
     free(digest);
-    
     return [NSString stringWithString:hex];
+#endif    
+
 }
 
 extern inline NSString* checksumMemHelper(BOOL saveStr) {

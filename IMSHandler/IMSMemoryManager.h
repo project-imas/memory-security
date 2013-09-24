@@ -7,8 +7,20 @@
 //
 
 #import <Foundation/Foundation.h>
+
+//** define securefoundation to make use of openSSL
+//** when undefined, Apple CommonCrypto will be used
+#define iMAS_SecureFoundation
+
+#ifdef iMAS_SecureFoundation
+#import <Securefoundation/Securefoundation.h>
+
+#else
+//** default - apple crypto, securefoundation not needed
 #import <CommonCrypto/CommonCryptor.h>
 #import <CommonCrypto/CommonDigest.h>
+
+#endif
 
 #import <malloc/malloc.h>
 

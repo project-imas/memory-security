@@ -25,6 +25,10 @@
 		3E2FB18517907AF30077102D /* Memory_Security_DemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E2FB18417907AF30077102D /* Memory_Security_DemoTests.m */; };
 		3E68687117BBE39000E52F11 /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3E68686F17BBE39000E52F11 /* MainStoryboard_iPad.storyboard */; };
 		3E77678817B426FF00828BC0 /* IMSMemoryManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E77678717B426FF00828BC0 /* IMSMemoryManager.m */; };
+		FE1B492517F2025B0080C34C /* libSecureFoundation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FE1B492017F2024D0080C34C /* libSecureFoundation.a */; };
+		FE1B493317F208530080C34C /* openssl.xcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = FE1B493217F208530080C34C /* openssl.xcodeproj */; };
+		FE1B493417F208530080C34C /* openssl.xcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = FE1B493217F208530080C34C /* openssl.xcodeproj */; };
+		FE1B493717F209990080C34C /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FE1B493617F209990080C34C /* libcrypto.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,6 +38,27 @@
 			proxyType = 1;
 			remoteGlobalIDString = 3E2FB14C17907AF30077102D;
 			remoteInfo = "Memory Security Demo";
+		};
+		FE1B491F17F2024D0080C34C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FE1B491917F2024D0080C34C /* SecureFoundation.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3B89357C162C92F1003750B6;
+			remoteInfo = SecureFoundation;
+		};
+		FE1B492117F2024D0080C34C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FE1B491917F2024D0080C34C /* SecureFoundation.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3B89358D162C92F1003750B6;
+			remoteInfo = SecureFoundationTests;
+		};
+		FE1B492317F202540080C34C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FE1B491917F2024D0080C34C /* SecureFoundation.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 3B89357B162C92F1003750B6;
+			remoteInfo = SecureFoundation;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -64,6 +89,9 @@
 		3E77678617B426FF00828BC0 /* IMSMemoryManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMSMemoryManager.h; sourceTree = "<group>"; };
 		3E77678717B426FF00828BC0 /* IMSMemoryManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMSMemoryManager.m; sourceTree = "<group>"; };
 		3EC8CDC11795E79A0057B1E0 /* MSObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSObject.h; sourceTree = "<group>"; };
+		FE1B491917F2024D0080C34C /* SecureFoundation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SecureFoundation.xcodeproj; path = vendor/securefoundation/SecureFoundation.xcodeproj; sourceTree = "<group>"; };
+		FE1B493217F208530080C34C /* openssl.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = file; name = openssl.xcodeproj; path = vendor/securefoundation/../openssl/openssl.xcodeproj; sourceTree = "<group>"; };
+		FE1B493617F209990080C34C /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = file; name = libcrypto.a; path = ../../../mobilesec/msbuild/Release/libcrypto.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +99,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FE1B493717F209990080C34C /* libcrypto.a in Frameworks */,
+				FE1B492517F2025B0080C34C /* libSecureFoundation.a in Frameworks */,
 				3E2FB15117907AF30077102D /* UIKit.framework in Frameworks */,
 				3E2FB15317907AF30077102D /* Foundation.framework in Frameworks */,
 				3E2FB15517907AF30077102D /* CoreGraphics.framework in Frameworks */,
@@ -102,6 +132,9 @@
 		3E2FB14417907AF30077102D = {
 			isa = PBXGroup;
 			children = (
+				FE1B493617F209990080C34C /* libcrypto.a */,
+				FE1B491917F2024D0080C34C /* SecureFoundation.xcodeproj */,
+				FE1B493217F208530080C34C /* openssl.xcodeproj */,
 				3E2B31EA17AC4F7700B48369 /* IMSHandler */,
 				3E2FB15617907AF30077102D /* Memory Security Demo */,
 				3E2FB17D17907AF30077102D /* Memory Security DemoTests */,
@@ -178,6 +211,15 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		FE1B491A17F2024D0080C34C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FE1B492017F2024D0080C34C /* libSecureFoundation.a */,
+				FE1B492217F2024D0080C34C /* SecureFoundationTests.octest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -192,6 +234,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				FE1B492417F202540080C34C /* PBXTargetDependency */,
 			);
 			name = "Memory Security Demo";
 			productName = "Memory Security Demo";
@@ -236,6 +279,12 @@
 			mainGroup = 3E2FB14417907AF30077102D;
 			productRefGroup = 3E2FB14E17907AF30077102D /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = FE1B491A17F2024D0080C34C /* Products */;
+					ProjectRef = FE1B491917F2024D0080C34C /* SecureFoundation.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				3E2FB14C17907AF30077102D /* Memory Security Demo */,
@@ -243,6 +292,23 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		FE1B492017F2024D0080C34C /* libSecureFoundation.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSecureFoundation.a;
+			remoteRef = FE1B491F17F2024D0080C34C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		FE1B492217F2024D0080C34C /* SecureFoundationTests.octest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = SecureFoundationTests.octest;
+			remoteRef = FE1B492117F2024D0080C34C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		3E2FB14B17907AF30077102D /* Resources */ = {
@@ -255,6 +321,7 @@
 				3E2FB16717907AF30077102D /* Default-568h@2x.png in Resources */,
 				3E2FB16A17907AF30077102D /* MainStoryboard_iPhone.storyboard in Resources */,
 				3E68687117BBE39000E52F11 /* MainStoryboard_iPad.storyboard in Resources */,
+				FE1B493317F208530080C34C /* openssl.xcodeproj in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -263,6 +330,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3E2FB18217907AF30077102D /* InfoPlist.strings in Resources */,
+				FE1B493417F208530080C34C /* openssl.xcodeproj in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -311,6 +379,11 @@
 			isa = PBXTargetDependency;
 			target = 3E2FB14C17907AF30077102D /* Memory Security Demo */;
 			targetProxy = 3E2FB17B17907AF30077102D /* PBXContainerItemProxy */;
+		};
+		FE1B492417F202540080C34C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SecureFoundation;
+			targetProxy = FE1B492317F202540080C34C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -414,6 +487,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer: Joseph Goerbel (33NXW7GS6V)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Memory Security Demo/Memory Security Demo-Prefix.pch";
+				HEADER_SEARCH_PATHS = "$(OPENSSL_SRC)/include";
 				INFOPLIST_FILE = "Memory Security Demo/Memory Security Demo-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -429,6 +503,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer: Joseph Goerbel (33NXW7GS6V)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Memory Security Demo/Memory Security Demo-Prefix.pch";
+				HEADER_SEARCH_PATHS = "$(OPENSSL_SRC)/include";
 				INFOPLIST_FILE = "Memory Security Demo/Memory Security Demo-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -448,6 +523,7 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Memory Security Demo/Memory Security Demo-Prefix.pch";
+				HEADER_SEARCH_PATHS = "$(OPENSSL_SRC)/include";
 				INFOPLIST_FILE = "Memory Security DemoTests/Memory Security DemoTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
@@ -465,6 +541,7 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Memory Security Demo/Memory Security Demo-Prefix.pch";
+				HEADER_SEARCH_PATHS = "$(OPENSSL_SRC)/include";
 				INFOPLIST_FILE = "Memory Security DemoTests/Memory Security DemoTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
