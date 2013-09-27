@@ -56,3 +56,8 @@ extern inline NSString* checksumObj(NSObject* obj);
 extern inline NSString* checksumMem();
 
 NSString* hexString(NSObject* obj);
+
+extern inline BOOL lockC(u_int8_t *buf, int len, NSString* pass);
+extern inline BOOL unlockC(u_int8_t *buf, int len, NSString* pass);
+
+

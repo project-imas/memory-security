@@ -223,6 +223,48 @@ extern inline BOOL cryptHelper(NSObject* obj, NSString* pass, CCOperation op) {
 //** end #ifdef iMAS_SecureFoundation
 #endif
 
+#ifdef iMAS_SecureFoundation
+extern inline BOOL lockC(u_int8_t *buf, int len, NSString* pass) {
+    if (buf == nil || len == 0 || pass == nil )
+        return NO;
+    
+    NSData *iv = [_ivS dataUsingEncoding:NSUTF8StringEncoding];
+    
+    //** assumes buf has been malloced and is not an object
+    NSData *key = [pass dataUsingEncoding:NSUTF8StringEncoding];
+    if ([key length] != 32)
+        return NO;
+    if ([iv length] != 16)
+        return NO;
+    
+    void *ciphertext = IMSCryptoUtilsC_EncryptData(buf, len, [key bytes], [iv bytes]);
+    memcpy(buf, ciphertext, len);
+    free(ciphertext);
+    
+    return YES;
+}
+
+extern inline BOOL unlockC(u_int8_t *buf, int len, NSString* pass) {
+    if (buf == nil || len == 0 || pass == nil )
+        return NO;
+    
+    NSData *iv = [_ivS dataUsingEncoding:NSUTF8StringEncoding];
+    
+    //** assumes buf has been malloced and is not an object
+    NSData *key = [pass dataUsingEncoding:NSUTF8StringEncoding];
+    if ([key length] != 32)
+        return NO;
+    if ([iv length] != 16)
+        return NO;
+    
+    void *plaintext = IMSCryptoUtilsC_DecryptData(buf, len, [key bytes], [iv bytes]);
+    memcpy(buf, plaintext, len);
+    free(plaintext);
+    
+    return YES;
+}
+
+#endif
 
 
 extern inline BOOL lock(NSObject* obj, NSString* pass) {
