@@ -91,7 +91,7 @@ static NSString* orig_str = nil;
   STAssertTrue([str isEqualToString:orig_str], @"sdata is not the same as original");
 
   //** test locking string object
-  orig_str = [[NSString alloc] initWithFormat:str]; //@"Four hundred ninety five"];
+  orig_str = [NSString stringWithFormat:@"%@",str]; //@"Four hundred ninety five"];
   //** does not work; makes a reference to the original string
   // error - [NSMutableString stringWithString: str];
   // error - NSString *orig_str = [str copy];
@@ -116,12 +116,12 @@ static NSString* orig_str = nil;
     memset(orig, 0x5a, len);
     
     //** make sure key is 32 bytes
-    lockC(data, len, @"passwordpasswordpasswordpassword");
+    lockC(data, len, "passwordpasswordpasswordpassword");
     NSData *dataD = [NSData dataWithBytesNoCopy:data length:len freeWhenDone:NO];
     NSData *origD = [NSData dataWithBytesNoCopy:orig length:len freeWhenDone:NO];
     STAssertFalse([dataD isEqualToData:origD], @"encrypted data same as original");
 
-    unlockC(data, len, @"passwordpasswordpasswordpassword");
+    unlockC(data, len, "passwordpasswordpasswordpassword");
     dataD = [NSData dataWithBytesNoCopy:data length:len freeWhenDone:NO];
     STAssertTrue([dataD isEqualToData:origD], @"data is not the same as original");
     

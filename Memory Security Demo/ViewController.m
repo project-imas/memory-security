@@ -30,10 +30,10 @@ BOOL arrTrack = NO;
 {
     [super viewDidLoad];
 
-    unsigned char bytes[] = {4,9,5};
+    unsigned char bytes[] = {2,5,5};
     data = [NSData dataWithBytes:bytes length:sizeof(bytes)];
-    num = [[NSNumber alloc] initWithInt:495];
-    str = [[NSString alloc] initWithFormat:@"Four hundred ninety five"];
+    num = [[NSNumber alloc] initWithInt:255];
+    str = [[NSString alloc] initWithFormat:@"0123456789ABCDEF"];
     
     arr = [[NSArray alloc] initWithObjects:data,num,str,nil];
     
@@ -43,13 +43,21 @@ BOOL arrTrack = NO;
 - (void)updateWidgets
 {
     // TODO, consider wiping temp values
-    [self.StrLabel setText:str];
-    [self.StrHex setText:hexString(str)];
+    [self.StrLabel setText:[NSString stringWithFormat:@"%@",str]];
+    [self.StrHex setText:[NSString stringWithFormat:@"%@",hexString(str)]];
     [self.DataLabel setText:[NSString stringWithFormat: @"%@", data]];
-    [self.DataHex setText:hexString(data)];
+    [self.DataHex setText:[NSString stringWithFormat:@"%@",hexString(data)]];
     [self.NumLabel setText:[NSString stringWithFormat: @"%@", num]];
-    [self.NumHex setText:hexString(num)];
-    [self.ArrayLabel setText:[NSString stringWithFormat: @"%@", arr]];
+    [self.NumHex setText:[NSString stringWithFormat:@"%@",hexString(num)]];
+    [self.ArrayLabel setText:[NSString stringWithFormat: @"%@", [arr componentsJoinedByString:@", "]]];
+    
+//    NSLog(@"%@",str);
+//    NSLog(@"%@",hexString(str));
+//    NSLog(@"%@",data);
+//    NSLog(@"%@",hexString(data));
+//    NSLog(@"%@",num);
+//    NSLog(@"%@",hexString(num));
+//    NSLog(@"%@",[arr componentsJoinedByString:@", "]);
 }
 
 - (void)didReceiveMemoryWarning
