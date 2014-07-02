@@ -45,25 +45,6 @@ BOOL arrTrack = NO;
              [NSString stringWithFormat:@"num"],
              [NSString stringWithFormat:@"str"], nil]];
     
-//    Dl_info *info = malloc(sizeof(Dl_info));
-//    
-//    int (*a)(int) = &abs;
-//    dladdr(a, info);
-//    
-//    printf("%s\n%p\n%s\n%p\n", info->dli_fname, info->dli_fbase, info->dli_sname, info->dli_saddr);
-//    
-//    NSString *docLib = [NSString stringWithFormat: @"%@/%@",[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject], @"imas_app_check.dylib"];
-//    
-//    NSString *bundleLib = [NSString stringWithFormat: @"%@/%@", [[NSBundle mainBundle] resourcePath], @"imas_app_check.dylib"];
-//    
-//    if([[NSFileManager defaultManager] fileExistsAtPath:bundleLib]) printf("exists\n");
-//    else printf("not exists\n");
-//    
-//    void * m = dlopen([bundleLib UTF8String], RTLD_NOW);
-//    int (*b)(int) = (void*)info->dli_saddr;
-//    
-//    printf("abs(-10) = %d\n%s\n%s\n%p\n",(*b)(-10),[docLib UTF8String],[bundleLib UTF8String],m);
-    
     [self updateWidgets];
 }
 
