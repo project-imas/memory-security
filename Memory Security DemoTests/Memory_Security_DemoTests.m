@@ -59,15 +59,17 @@ static NSString* orig_str = nil;
     STAssertTrue([data isEqualToData:zeros], @"wipe test not zeroing data properly");
 }
 
-- (void)testLock_UnLock
+- (void)testLock_UnLock // Fails for iOS >= 7.0
 {
   //** locking obj should encrypt it
   NSData *orig = [NSData dataWithData:data];
   STAssertTrue([data isEqualToData:orig], @"data is not the same as original");
-  lock(data, @"pass");
+    lock(data, @"pass");
+    NSLog(@"%@\n%@",data,orig);
   STAssertFalse([data isEqualToData:orig], @"encrypted data same as original");
   //** unlocking should return it to the original value
   unlock(data, @"pass");
+    NSLog(@"%@\n%@",data, orig);
   STAssertTrue([data isEqualToData:orig], @"data is not the same as original");
 
   //** get bytes from string, unfortunately, this does not create a copy, but only a byte filter of the data

@@ -8,13 +8,13 @@
 
 #import "IMSMemoryManager.h"
 
-const size_t OFFSET_SSTRING = 9;
-const size_t OFFSET_LSTRING = 12;
-const size_t OFFSET_NUMBER  = 8;
-const size_t OFFSET_ARRAY   = 8;
+const int OFFSET_SSTRING = 9;
+const int OFFSET_LSTRING = 12;
+const int OFFSET_NUMBER  = 8;
+const int OFFSET_ARRAY   = 8;
 
-const size_t OFFSET_7DATA    = 8;        // iOS >= 7.0
-const size_t OFFSET_6DATA    = 16;       // iOS <= 6.1
+const int OFFSET_7DATA    = 8;        // iOS >= 7.0
+const int OFFSET_6DATA    = 16;       // iOS <= 6.1
 
 static NSPointerArray* unlockedPointers;
 static NSPointerArray* lockedPointers;
@@ -27,14 +27,12 @@ void initMem(){
         unlockedPointers =[[NSPointerArray alloc] init];
         lockedPointers = [[NSPointerArray alloc] init];
     }
-    
-//    iv_data = IMSCryptoUtilsPseudoRandomData(kCCBlockSizeAES128);
 }
 
 inline NSString* hexString(NSObject* obj){
     NSMutableString *hex = [[NSMutableString alloc] init];
     unsigned char* rawObj = (__bridge void*) obj;
-    int size = malloc_size((__bridge void*) obj);
+    int size = (int)malloc_size((__bridge void*) obj);
     for(int i = 0; i < size; i ++) {
         if(i%32==0 && i != 0) [hex appendString:@"\n"];
         else if(i%4==0 && i != 0) [hex appendString:@" "];
@@ -42,6 +40,19 @@ inline NSString* hexString(NSObject* obj){
     }
     return [NSString stringWithString:hex];
 }
+
+inline NSString* hex(void* obj){
+    NSMutableString *hex = [[NSMutableString alloc] init];
+    unsigned char* rawObj = obj;
+    int size = (int)malloc_size(obj);
+    for(int i = 0; i < size; i ++) {
+        if(i%32==0 && i != 0) [hex appendString:@"\n"];
+        else if(i%4==0 && i != 0) [hex appendString:@" "];
+        [hex appendFormat:@"%02X", rawObj[i]];
+    }
+    return [NSString stringWithString:hex];
+}
+
 
 inline void* getStart(NSObject* obj) {
     
@@ -53,6 +64,7 @@ inline void* getStart(NSObject* obj) {
         else
             return ((__bridge void*)obj + OFFSET_LSTRING);
     } else if([obj isKindOfClass:[NSData class]]) {
+//        return ((__bridge void*)obj + OFFSET_7DATA);
         return ((__bridge void*)obj + ((iosversion < 7.0)?OFFSET_6DATA:OFFSET_7DATA));
     } else if([obj isKindOfClass:[NSNumber class]]) {
         return ((__bridge void*)obj + OFFSET_NUMBER);
@@ -69,15 +81,16 @@ inline int getSize(NSObject* obj) {
     
     if([obj isKindOfClass:[NSString class]]) {
         if ([(NSString *)obj length] < 256)
-            return (malloc_size((__bridge void*)obj) - OFFSET_SSTRING);
+            return (int)(malloc_size((__bridge void*)obj) - OFFSET_SSTRING);
         else
-            return (malloc_size((__bridge void*)obj) - OFFSET_LSTRING);
+            return (int)(malloc_size((__bridge void*)obj) - OFFSET_LSTRING);
     } else if([obj isKindOfClass:[NSData class]]) {
-        return (malloc_size((__bridge void*)obj) - ((iosversion < 7.0)?OFFSET_6DATA:OFFSET_7DATA));
+//        return (int)(malloc_size((__bridge void*)obj) - OFFSET_7DATA);
+        return (int)(malloc_size((__bridge void*)obj) - ((iosversion < 7.0)?OFFSET_6DATA:OFFSET_7DATA));
     } else if([obj isKindOfClass:[NSNumber class]]) {
-        return (malloc_size((__bridge void*)obj) - OFFSET_NUMBER);
+        return (int)(malloc_size((__bridge void*)obj) - OFFSET_NUMBER);
     } else if([obj isKindOfClass:[NSArray class]]) {
-        return (malloc_size((__bridge void*)obj) - OFFSET_ARRAY);
+        return (int)(malloc_size((__bridge void*)obj) - OFFSET_ARRAY);
     } else {
         return 0;
     }
@@ -91,13 +104,26 @@ inline NSString* getKey(void* obj) {
 // no means caller should return immediately
 inline BOOL handleType(NSObject* obj, NSString* pass, traversalFunc f) {
     BOOL ret = YES;
-    if([obj isKindOfClass:[NSArray class]]){
+    BOOL enumerateObject = [obj isKindOfClass:[NSArray class]]
+                        || [obj isKindOfClass:[NSSet class]];
+    BOOL enumerateDict   = [obj isKindOfClass:[NSDictionary class]];
+    
+    if(enumerateObject){
         ret = NO;
         for(id newObj in (NSArray*)obj) {
             (*f)(newObj, pass);
         }
     }
-    NSLog(@"Done with type handler %d", ret);
+    
+    if(enumerateDict){
+        ret = NO;
+        for(id key in (NSDictionary*)obj){
+            (*f)([(NSDictionary*)obj objectForKey:key],pass);
+            (*f)(key,pass);
+        }
+    }
+    
+    NSLog(@"Done with type handler %d\n\n", ret);
     return ret;
 }
 
@@ -149,10 +175,10 @@ extern inline BOOL cryptHelper(NSObject* obj, NSString* pass, CCOperation op) {
     BOOL success = NO;
     CCCryptorStatus cryptorStatus;
     
-    NSLog(@"Object pointer: %p", obj);
+    NSLog(@"\nObject pointer: %p", obj);
     char *keyPtr = malloc(kCCKeySizeAES256+1);
     bzero(keyPtr, kCCKeySizeAES256+1);
-    [pass getCString:keyPtr maxLength:sizeof(keyPtr) encoding:NSUTF8StringEncoding];
+    [pass getCString:keyPtr maxLength:kCCKeySizeAES256 encoding:NSUTF8StringEncoding];
     
     cryptorStatus = cryptwork(op, getStart(obj), getSize(obj), keyPtr, kCCKeySizeAES256);
     
@@ -238,7 +264,7 @@ extern inline CCCryptorStatus cryptwork(CCOperation op ,void* dataIn, size_t dat
 //    printf("key:\t");
 //    for(int i = 0; i < keylen; i++){ if(i%4==0) printf(" "); printf("%02x",(unsigned char)key[i]); }
 //    printf("\n");
-//    printf("keyhash: ");
+//    printf("keyhash:");
 //    for(int i = 0; i < keylen; i++){ if(i%4==0) printf(" "); printf("%02x",(unsigned char)keyhash[i]); }
 //    printf("\n");
 
@@ -291,7 +317,7 @@ extern inline BOOL lockC(void *data, int len, char *pass) {
     CCCryptorStatus cryptorStatus;
     
     char *key = malloc(kCCKeySizeAES256 + 1);
-    bzero(key, sizeof(key));
+    bzero(key, kCCKeySizeAES256+1);
     memcpy(key, pass, strlen(pass));
     
     cryptorStatus = cryptwork(kCCEncrypt, data, len, key, kCCKeySizeAES256);
@@ -299,7 +325,7 @@ extern inline BOOL lockC(void *data, int len, char *pass) {
     if (cryptorStatus != kCCSuccess)
         success = NO;
     
-    bzero(key, sizeof(key));
+    bzero(key, kCCKeySizeAES256+1);
     free(key);
     return success;
 }
@@ -309,7 +335,7 @@ extern inline BOOL unlockC(void *data, int len, char *pass) {
     CCCryptorStatus cryptorStatus;
     
     char *key = malloc(kCCKeySizeAES256 + 1);
-    bzero(key, sizeof(key));
+    bzero(key, kCCKeySizeAES256+1);
     memcpy(key, pass, strlen(pass));
     
     cryptorStatus = cryptwork(kCCDecrypt, data, len, key, kCCKeySizeAES256);
@@ -317,7 +343,7 @@ extern inline BOOL unlockC(void *data, int len, char *pass) {
     if (cryptorStatus != kCCSuccess)
         success = NO;
     
-    bzero(key, sizeof(key));
+    bzero(key, kCCKeySizeAES256+1);
     free(key);
     return success;
 }

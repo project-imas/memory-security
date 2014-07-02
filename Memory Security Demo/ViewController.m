@@ -5,6 +5,8 @@
 //  Created by Black, Gavin S. on 7/12/13.
 //  Copyright (c) 2013 Black, Gavin S. All rights reserved.
 //
+#import <sys/mman.h>
+#import <dlfcn.h>
 
 #import "ViewController.h"
 #import "IMSMemoryManager.h"
@@ -19,6 +21,7 @@ NSArray* arr;
 NSString* str;
 NSData* data;
 NSNumber* num;
+NSDictionary *dict;
 
 BOOL checksumInit = NO;
 BOOL strTrack = NO;
@@ -30,12 +33,36 @@ BOOL arrTrack = NO;
 {
     [super viewDidLoad];
 
-    unsigned char bytes[] = {2,5,5};
+    unsigned char bytes[] = {0xde,0xad,0xbe,0xef};
     data = [NSData dataWithBytes:bytes length:sizeof(bytes)];
-    num = [[NSNumber alloc] initWithInt:255];
+    num = [[NSNumber alloc] initWithInt:0xefbeadde];
     str = [[NSString alloc] initWithFormat:@"0123456789ABCDEF"];
     
     arr = [[NSArray alloc] initWithObjects:data,num,str,nil];
+    dict = [NSDictionary dictionaryWithObjects:arr forKeys:
+            [NSArray arrayWithObjects:
+             [NSString stringWithFormat:@"data"],
+             [NSString stringWithFormat:@"num"],
+             [NSString stringWithFormat:@"str"], nil]];
+    
+//    Dl_info *info = malloc(sizeof(Dl_info));
+//    
+//    int (*a)(int) = &abs;
+//    dladdr(a, info);
+//    
+//    printf("%s\n%p\n%s\n%p\n", info->dli_fname, info->dli_fbase, info->dli_sname, info->dli_saddr);
+//    
+//    NSString *docLib = [NSString stringWithFormat: @"%@/%@",[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject], @"imas_app_check.dylib"];
+//    
+//    NSString *bundleLib = [NSString stringWithFormat: @"%@/%@", [[NSBundle mainBundle] resourcePath], @"imas_app_check.dylib"];
+//    
+//    if([[NSFileManager defaultManager] fileExistsAtPath:bundleLib]) printf("exists\n");
+//    else printf("not exists\n");
+//    
+//    void * m = dlopen([bundleLib UTF8String], RTLD_NOW);
+//    int (*b)(int) = (void*)info->dli_saddr;
+//    
+//    printf("abs(-10) = %d\n%s\n%s\n%p\n",(*b)(-10),[docLib UTF8String],[bundleLib UTF8String],m);
     
     [self updateWidgets];
 }
@@ -50,14 +77,7 @@ BOOL arrTrack = NO;
     [self.NumLabel setText:[NSString stringWithFormat: @"%@", num]];
     [self.NumHex setText:[NSString stringWithFormat:@"%@",hexString(num)]];
     [self.ArrayLabel setText:[NSString stringWithFormat: @"%@", [arr componentsJoinedByString:@", "]]];
-    
-//    NSLog(@"%@",str);
-//    NSLog(@"%@",hexString(str));
-//    NSLog(@"%@",data);
-//    NSLog(@"%@",hexString(data));
-//    NSLog(@"%@",num);
-//    NSLog(@"%@",hexString(num));
-//    NSLog(@"%@",[arr componentsJoinedByString:@", "]);
+
 }
 
 - (void)didReceiveMemoryWarning

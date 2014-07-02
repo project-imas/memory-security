@@ -30,6 +30,7 @@ extern NSString* checksumMemHelper(BOOL saveStr);
 extern NSString* checksumObj(NSObject* obj);
 extern NSString* checksumMem();
 
+NSString* hex(void* obj);
 NSString* hexString(NSObject* obj);
 int getSize(NSObject* obj);
 void* getStart(NSObject* obj);
