@@ -111,6 +111,11 @@
                                             <action selector="ChecksumAll:" destination="2" id="Rsg-aN-6jY"/>
                                         </connections>
                                     </barButtonItem>
+                                    <barButtonItem title="prepexit" id="cju-hw-YSR">
+                                        <connections>
+                                            <action selector="SecureExit:" destination="2" id="1zM-id-KgC"/>
+                                        </connections>
+                                    </barButtonItem>
                                 </items>
                             </toolbar>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rd6-Pr-TT2">
@@ -450,6 +455,7 @@
                         <outlet property="DataHex" destination="mmd-UE-DXw" id="RNS-rh-rDj"/>
                         <outlet property="DataLabel" destination="rPX-bN-7iM" id="LH3-di-ddX"/>
                         <outlet property="DataTrackButton" destination="UsX-uH-VgK" id="niU-Lv-oYx"/>
+                        <outlet property="ExitButton" destination="cju-hw-YSR" id="UPw-Lc-bbo"/>
                         <outlet property="NumHex" destination="JVF-EE-9St" id="gCg-rh-3uc"/>
                         <outlet property="NumLabel" destination="j5X-8v-uRR" id="9Zc-uZ-wYr"/>
                         <outlet property="NumTrackButton" destination="Vdm-g9-UFP" id="upp-lv-QmO"/>

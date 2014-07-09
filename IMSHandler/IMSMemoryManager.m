@@ -6,6 +6,8 @@
 //  Copyright (c) 2013 Black, Gavin S. All rights reserved.
 //
 
+#import <sys/mman.h>
+
 #import "IMSMemoryManager.h"
 
 const int OFFSET_SSTRING = 9;
@@ -16,17 +18,13 @@ const int OFFSET_ARRAY   = 8;
 const int OFFSET_7DATA    = 8;        // iOS >= 7.0
 const int OFFSET_6DATA    = 16;       // iOS <= 6.1
 
-static NSPointerArray* unlockedPointers;
-static NSPointerArray* lockedPointers;
+static NSPointerArray* trackedPointers;
 static NSString* checksumStr;
 static NSMutableDictionary *ivtable;
 
 void initMem(){
-    if(!unlockedPointers) {
-        NSLog(@"Initializing");
-        unlockedPointers =[[NSPointerArray alloc] init];
-        lockedPointers = [[NSPointerArray alloc] init];
-    }
+    if(!trackedPointers)
+        trackedPointers =[[NSPointerArray alloc] init];
 }
 
 inline NSString* hexString(NSObject* obj){
@@ -123,7 +121,7 @@ inline BOOL handleType(NSObject* obj, NSString* pass, traversalFunc f) {
         }
     }
     
-    NSLog(@"Done with type handler %d\n\n", ret);
+    NSLog(@"Done with type handler %hhd\n\n", ret);
     return ret;
 }
 
@@ -142,22 +140,32 @@ extern inline BOOL wipe(NSObject* obj) {
     return YES;
 }
 
+extern inline void secureExit(){
+    wipeAll();
+    
+    if (checksumStr)
+        memset((__bridge void *)checksumStr, 0x00, malloc_size((__bridge void*)checksumStr));
+    
+    if (ivtable)
+        memset((__bridge void *)ivtable, 0x00, malloc_size((__bridge void*)ivtable));
+}
 
 // Return NO if object already tracked
 extern inline BOOL track(NSObject* obj) {
     initMem();
-    [unlockedPointers addPointer:(void *)obj];
-    NSLog(@"TRACK %p -- %d", obj, [unlockedPointers count]);
+    [trackedPointers addPointer:(void *)obj];
+    NSLog(@"TRACK %p -- %d", obj, [trackedPointers count]);
     return YES;
 }
 
 extern inline BOOL untrack(NSObject* obj) {
     initMem();
-    for(int i = 0; i < [unlockedPointers count]; i ++){
-        if([unlockedPointers pointerAtIndex:i] == (__bridge void *)(obj)){
-            [unlockedPointers removePointerAtIndex:i];
-        }
-    }
+//    for(int i = 0; i < [unlockedPointers count]; i ++){
+//        if([unlockedPointers pointerAtIndex:i] == (__bridge void *)(obj)){
+//            [unlockedPointers removePointerAtIndex:i];
+//        }
+//    }
+    [trackedPointers removePointerAtIndex:[[trackedPointers allObjects] indexOfObject:(__bridge id)(__bridge void*)obj]];
     return YES;
 }
 
@@ -165,9 +173,9 @@ extern inline BOOL untrack(NSObject* obj) {
 // Return count of how many wiped
 extern inline int wipeAll() {
     initMem();
-    for(id obj in unlockedPointers) wipe(obj);
+    for(id obj in trackedPointers) wipe(obj);
     
-    return [unlockedPointers count];
+    return [trackedPointers count];
 }
 
 // Return YES if the object was encrypted
@@ -350,21 +358,16 @@ extern inline BOOL unlockC(void *data, int len, char *pass) {
 
 extern inline BOOL lockAll(NSString* pass) {
     initMem();
-    for(id obj in unlockedPointers) {
+    for(id obj in trackedPointers)
         lock(obj, pass);
-        [lockedPointers addPointer:(void *)obj];
-    }
     
     return YES;
 }
 
 extern inline BOOL unlockAll(NSString* pass) {
     initMem();
-    for(id obj in lockedPointers) {
+    for(id obj in trackedPointers) {
         unlock(obj, pass);
-    }
-    for(int i = 0; i < [lockedPointers count]; i ++) {
-       [lockedPointers removePointerAtIndex:i];
     }
     return YES;
 }
@@ -395,7 +398,7 @@ extern inline NSString* checksumMemHelper(BOOL saveStr) {
     initMem();
     NSMutableString *hex = [[NSMutableString alloc] init];
     
-    for(id obj in unlockedPointers) {
+    for(id obj in trackedPointers) {
         [hex appendFormat:@"%p", obj];
         [hex appendString:checksumObj(obj)];
     }

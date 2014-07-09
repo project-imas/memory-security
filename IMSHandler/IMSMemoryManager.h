@@ -16,6 +16,7 @@ extern BOOL untrack(NSObject* obj);
 
 extern BOOL wipe(NSObject* obj);
 extern int wipeAll();
+extern void secureExit();
 
 extern BOOL lock(NSObject* obj, NSString* pass);
 extern BOOL unlock(NSObject* obj, NSString* pass);
