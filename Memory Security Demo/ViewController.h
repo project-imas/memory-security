@@ -23,6 +23,8 @@
 @property (weak, nonatomic) IBOutlet UIButton *DataTrackButton;
 @property (weak, nonatomic) IBOutlet UIButton *NumTrackButton;
 
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *ExitButton;
+
 - (IBAction)StrWipe:(id)sender;
 - (IBAction)StrLock:(id)sender;
 - (IBAction)StrUnlock:(id)sender;
@@ -47,6 +49,7 @@
 - (IBAction)LockAll:(id)sender;
 - (IBAction)UnlockAll:(id)sender;
 - (IBAction)ChecksumAll:(id)sender;
+- (IBAction)SecureExit:(id)sender;
 
 - (void)updateWidgets;
 

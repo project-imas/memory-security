@@ -5,6 +5,8 @@
 //  Created by Black, Gavin S. on 7/12/13.
 //  Copyright (c) 2013 Black, Gavin S. All rights reserved.
 //
+#import <sys/mman.h>
+#import <dlfcn.h>
 
 #import "ViewController.h"
 #import "IMSMemoryManager.h"
@@ -19,6 +21,7 @@ NSArray* arr;
 NSString* str;
 NSData* data;
 NSNumber* num;
+NSDictionary *dict;
 
 BOOL checksumInit = NO;
 BOOL strTrack = NO;
@@ -26,16 +29,23 @@ BOOL dataTrack = NO;
 BOOL numTrack = NO;
 BOOL arrTrack = NO;
 
+BOOL readyToExit = NO;
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
 
-    unsigned char bytes[] = {4,9,5};
+    unsigned char bytes[] = {0xde,0xad,0xbe,0xef};
     data = [NSData dataWithBytes:bytes length:sizeof(bytes)];
-    num = [[NSNumber alloc] initWithInt:495];
-    str = [[NSString alloc] initWithFormat:@"Four hundred ninety five"];
+    num = [[NSNumber alloc] initWithInt:0xbebafeca];
+    str = [[NSString alloc] initWithFormat:@"0123456789ABCDEF"];
     
     arr = [[NSArray alloc] initWithObjects:data,num,str,nil];
+    dict = [NSDictionary dictionaryWithObjects:arr forKeys:
+            [NSArray arrayWithObjects:
+             [NSString stringWithFormat:@"data"],
+             [NSString stringWithFormat:@"num"],
+             [NSString stringWithFormat:@"str"], nil]];
     
     [self updateWidgets];
 }
@@ -43,13 +53,14 @@ BOOL arrTrack = NO;
 - (void)updateWidgets
 {
     // TODO, consider wiping temp values
-    [self.StrLabel setText:str];
-    [self.StrHex setText:hexString(str)];
+    [self.StrLabel setText:[NSString stringWithFormat:@"%@",str]];
+    [self.StrHex setText:[NSString stringWithFormat:@"%@",hexString(str)]];
     [self.DataLabel setText:[NSString stringWithFormat: @"%@", data]];
-    [self.DataHex setText:hexString(data)];
+    [self.DataHex setText:[NSString stringWithFormat:@"%@",hexString(data)]];
     [self.NumLabel setText:[NSString stringWithFormat: @"%@", num]];
-    [self.NumHex setText:hexString(num)];
-    [self.ArrayLabel setText:[NSString stringWithFormat: @"%@", arr]];
+    [self.NumHex setText:[NSString stringWithFormat:@"%@",hexString(num)]];
+    [self.ArrayLabel setText:[NSString stringWithFormat: @"%@", [arr componentsJoinedByString:@", "]]];
+
 }
 
 - (void)didReceiveMemoryWarning
@@ -77,11 +88,11 @@ BOOL arrTrack = NO;
 - (IBAction)StringTrack:(id)sender {
     if(strTrack == YES) {
         untrack(str);
-        [self.StrTrackButton setTitle:@"Track" forState:UIControlStateNormal];
+        [self.StrTrackButton setTitle:@"track" forState:UIControlStateNormal];
         strTrack = NO;
     } else {
         track(str);
-        [self.StrTrackButton setTitle:@"Untrack" forState:UIControlStateNormal];
+        [self.StrTrackButton setTitle:@"untrack" forState:UIControlStateNormal];
         strTrack = YES;
     }
 }
@@ -104,11 +115,11 @@ BOOL arrTrack = NO;
 - (IBAction)DataTrack:(id)sender {
     if(dataTrack == YES) {
         untrack(data);
-        [self.DataTrackButton setTitle:@"Track" forState:UIControlStateNormal];
+        [self.DataTrackButton setTitle:@"track" forState:UIControlStateNormal];
         dataTrack = NO;
     } else {
         track(data);
-        [self.DataTrackButton setTitle:@"Untrack" forState:UIControlStateNormal];
+        [self.DataTrackButton setTitle:@"untrack" forState:UIControlStateNormal];
         dataTrack = YES;
     }
 }
@@ -131,11 +142,11 @@ BOOL arrTrack = NO;
 - (IBAction)NumberTrack:(id)sender {
     if(numTrack == YES) {
         untrack(num);
-        [self.NumTrackButton setTitle:@"Track" forState:UIControlStateNormal];
+        [self.NumTrackButton setTitle:@"track" forState:UIControlStateNormal];
         numTrack = NO;
     } else {
         track(num);
-        [self.NumTrackButton setTitle:@"Untrack" forState:UIControlStateNormal];
+        [self.NumTrackButton setTitle:@"untrack" forState:UIControlStateNormal];
         numTrack = YES;
     }
 }
@@ -158,11 +169,11 @@ BOOL arrTrack = NO;
 - (IBAction)ArrayTrack:(id)sender {
     if(arrTrack == YES) {
         untrack(arr);
-        [self.ArrTrackButton setTitle:@"Track" forState:UIControlStateNormal];
+        [self.ArrTrackButton setTitle:@"track" forState:UIControlStateNormal];
         arrTrack = NO;
     } else {
         track(arr);
-        [self.ArrTrackButton setTitle:@"Untrack" forState:UIControlStateNormal];
+        [self.ArrTrackButton setTitle:@"untrack" forState:UIControlStateNormal];
         arrTrack = YES;
     }
 }
@@ -173,13 +184,13 @@ BOOL arrTrack = NO;
 }
 
 - (IBAction)LockAll:(id)sender {
-    lockAll(@"TEST");
+    lockAll(@"PASS");
     [self updateWidgets];
     
 }
 
 - (IBAction)UnlockAll:(id)sender {
-    unlockAll(@"TEST");
+    unlockAll(@"PASS");
     [self updateWidgets];
 }
 
@@ -197,5 +208,16 @@ BOOL arrTrack = NO;
         }
     }
     [alert show];
+}
+
+- (IBAction)SecureExit:(id)sender {
+    if (readyToExit)
+        exit(0);
+    else {
+        secureExit();
+        [self.ExitButton setTitle:@"exit"];
+        [self updateWidgets];
+        readyToExit = YES;
+    }
 }
 @end

@@ -6,58 +6,37 @@
 //  Copyright (c) 2013 Black, Gavin S. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-
-//** define securefoundation to make use of openSSL
-//** when undefined, Apple CommonCrypto will be used
-#define iMAS_SecureFoundation
-
-#ifdef iMAS_SecureFoundation
 #import <Securefoundation/Securefoundation.h>
-
-#else
-//** default - apple crypto, securefoundation not needed
-#import <CommonCrypto/CommonCryptor.h>
-#import <CommonCrypto/CommonDigest.h>
-
-#endif
-
 #import <malloc/malloc.h>
-
-//
-//  IMSMemoryManager.m
-//  Memory Security Demo
-//
-//  Created by Black, Gavin S. on 8/8/13.
-//  Copyright (c) 2013 Black, Gavin S. All rights reserved.
-//
-
-#import "IMSMemoryManager.h"
-
 
 typedef BOOL (*traversalFunc)(NSObject *, NSString *);
 
-// Return NO if wipe failed
-extern inline BOOL wipe(NSObject* obj);
-// Return NO if object already tracked
-extern inline BOOL track(NSObject* obj);
+extern BOOL track(NSObject* obj);
+extern BOOL untrack(NSObject* obj);
 
-extern inline BOOL untrack(NSObject* obj);
-extern inline int wipeAll();
-extern inline BOOL lock(NSObject* obj, NSString* pass);
-extern inline BOOL unlock(NSObject* obj, NSString* pass);
-extern inline BOOL lockAll(NSString* pass);
+extern BOOL wipe(NSObject* obj);
+extern int wipeAll();
+extern void secureExit();
 
-extern inline BOOL unlockAll(NSString* pass) ;
+extern BOOL lock(NSObject* obj, NSString* pass);
+extern BOOL unlock(NSObject* obj, NSString* pass);
+extern BOOL lockAll(NSString* pass);
+extern BOOL unlockAll(NSString* pass) ;
 
-extern inline BOOL checksumTest();
-extern inline NSString* checksumMemHelper(BOOL saveStr);
-extern inline NSString* checksumObj(NSObject* obj);
-extern inline NSString* checksumMem();
+extern BOOL lockC(void *data, int len, char *pass);
+extern BOOL unlockC(void *data, int len, char *pass);
 
+extern BOOL checksumTest();
+extern NSString* checksumMemHelper(BOOL saveStr);
+extern NSString* checksumObj(NSObject* obj);
+extern NSString* checksumMem();
+
+NSString* hex(void* obj);
 NSString* hexString(NSObject* obj);
+int getSize(NSObject* obj);
+void* getStart(NSObject* obj);
+NSString* getKey(void* obj);
+BOOL handleType(NSObject* obj, NSString* pass, traversalFunc f);
 
-extern inline BOOL lockC(u_int8_t *buf, int len, NSString* pass);
-extern inline BOOL unlockC(u_int8_t *buf, int len, NSString* pass);
-
-
+extern BOOL cryptHelper(NSObject* obj, NSString* pass, CCOperation op);
+extern CCCryptorStatus cryptwork(CCOperation op, void* data, size_t datalen, char* key, size_t keylen);
