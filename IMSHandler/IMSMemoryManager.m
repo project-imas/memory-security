@@ -121,7 +121,7 @@ inline BOOL handleType(NSObject* obj, NSString* pass, traversalFunc f) {
         }
     }
     
-    NSLog(@"Done with type handler %hhd\n\n", ret);
+    NSLog(@"Done with type handler %@\n\n", ret?@"YES":@"NO");
     return ret;
 }
 
@@ -154,17 +154,12 @@ extern inline void secureExit(){
 extern inline BOOL track(NSObject* obj) {
     initMem();
     [trackedPointers addPointer:(void *)obj];
-    NSLog(@"TRACK %p -- %d", obj, [trackedPointers count]);
+    NSLog(@"TRACK %p -- %lu", obj, (unsigned long)[trackedPointers count]);
     return YES;
 }
 
 extern inline BOOL untrack(NSObject* obj) {
     initMem();
-//    for(int i = 0; i < [unlockedPointers count]; i ++){
-//        if([unlockedPointers pointerAtIndex:i] == (__bridge void *)(obj)){
-//            [unlockedPointers removePointerAtIndex:i];
-//        }
-//    }
     [trackedPointers removePointerAtIndex:[[trackedPointers allObjects] indexOfObject:(__bridge id)(__bridge void*)obj]];
     return YES;
 }
@@ -175,7 +170,7 @@ extern inline int wipeAll() {
     initMem();
     for(id obj in trackedPointers) wipe(obj);
     
-    return [trackedPointers count];
+    return (int)[trackedPointers count];
 }
 
 // Return YES if the object was encrypted
@@ -201,6 +196,7 @@ extern inline BOOL cryptHelper(NSObject* obj, NSString* pass, CCOperation op) {
         case kCCOverflow:       NSLog(@"ERR: OVERFLOW");                            break;
         case (-1):              NSLog(@"ERR: CANNOT UNLOCK, OBJECT NOT LOCKED");    break;
         case (-2):              NSLog(@"ERR: NULL IV");                             break;
+        case (-3):              NSLog(@"ERR: CANNOT LOCK, OBJECT ALREADY LOCKED");  break;
         default:                NSLog(@"ERR: UNKNOWN ERROR(%d)",cryptorStatus);     break;
     }
     
@@ -215,40 +211,39 @@ extern inline CCCryptorStatus cryptwork(CCOperation op ,void* dataIn, size_t dat
     int ivlen = kCCBlockSizeAES128;
     
     NSData *iv_salt;
-    NSMutableArray *ivarray;
     void *dataOut = malloc(datalen);
     bzero(dataOut, datalen);
     size_t dataOutMoved = 0;
     CCCryptorRef cryptorRef = NULL;
     CCCryptorStatus cryptorStatus;
     
+    /* initialize ivtable if not already
+     * table format (dictionary): { pointerAddress : < iv[16 bytes] salt[8 bytes] > }
+     * e.g. { 0xcafebabe : <01234567 890abcdef 01234567 890abcdef 0124567 890abcdef> }
+     */
+    
     if (ivtable == nil)
         ivtable = [NSMutableDictionary dictionary];
     
     if (op == kCCEncrypt) {
-        if ([ivtable objectForKey:getKey(dataIn)] == nil)
-            [ivtable setObject:[NSMutableArray array] forKey:getKey(dataIn)];
-        
-        ivarray = [ivtable objectForKey:getKey(dataIn)];
+        if ([ivtable objectForKey:getKey(dataIn)] != nil)
+            return (cryptorStatus = -3); // object already encrypted
         
         iv_salt = IMSCryptoUtilsPseudoRandomData(ivlen + saltlen);
-        [ivarray insertObject:iv_salt atIndex:0];
+        [ivtable setObject:iv_salt forKey:getKey(dataIn)];
     }
     else {
         if ([ivtable objectForKey:getKey(dataIn)] == nil)
-            return (cryptorStatus = -1);
+            return (cryptorStatus = -1); // object not encrypted
         
-        ivarray = [ivtable objectForKey:getKey(dataIn)];
-        
-        iv_salt = [ivarray objectAtIndex:0];
-        [ivarray removeObjectAtIndex:0];
-    
-        if ([ivarray count] == 0)
-            [ivtable removeObjectForKey:getKey(dataIn)];
+        iv_salt = [ivtable objectForKey:getKey(dataIn)];
+        [ivtable removeObjectForKey:getKey(dataIn)];
     }
     
+//    NSLog(@"%@",ivtable);
+    
     if (iv_salt == nil || [iv_salt bytes] == NULL)
-        return (cryptorStatus = -2);
+        return (cryptorStatus = -2); // error with iv_salt
     
     char *_iv = malloc(ivlen);
     char *_salt = malloc(saltlen);
@@ -257,11 +252,15 @@ extern inline CCCryptorStatus cryptwork(CCOperation op ,void* dataIn, size_t dat
     memcpy(_iv, _iv_salt, ivlen);
     memcpy(_salt, _iv_salt + ivlen, saltlen);
 
-    for(int i = keylen - saltlen; i < keylen; i++)
+    /* key = key[padded to 32 bytes] XOR salt[8 bytes]
+     * e.g.      P A S S  W O R D 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+     *     XOR  00000000 00000000 00000000 00000000 00000000 00000000 00000000  S A L T  H E R E
+     */
+    for(int i = (int)keylen - saltlen; i < keylen; i++)
         key[i] = key [i] ^ _salt[i - keylen + saltlen];
     
     unsigned char *keyhash = malloc(keylen);
-    keyhash = CC_SHA256(key, keylen, keyhash);
+    keyhash = CC_SHA256(key, (unsigned int)keylen, keyhash);
     
 //    printf("_iv:\t");
 //    for(int i = 0; i < ivlen; i++){ if(i%4==0) printf(" "); printf("%02x",(unsigned char)_iv[i]); }
@@ -293,8 +292,7 @@ extern inline CCCryptorStatus cryptwork(CCOperation op ,void* dataIn, size_t dat
         }
     }
     
-//    NSLog(@"dataOutMoved: %lu",dataOutMoved);
-    
+    /* zero and free all the things */    
     bzero(dataOut, datalen);
     bzero(keyhash, keylen);
     bzero(_iv, kCCBlockSizeAES128);
@@ -386,7 +384,7 @@ extern inline NSString* checksumObj(NSObject* obj) {
     NSMutableString *hex = [[NSMutableString alloc] init];
     
     unsigned char* digest = malloc(CC_SHA1_DIGEST_LENGTH);
-    if (CC_SHA1((__bridge void*)obj, malloc_size((__bridge void*)obj), digest)) {
+    if (CC_SHA1((__bridge void*)obj, (unsigned int)malloc_size((__bridge void*)obj), digest)) {
         for (NSUInteger i=0; i<CC_SHA1_DIGEST_LENGTH; i++)
             [hex appendFormat:@"%02x", digest[i]];
     }
