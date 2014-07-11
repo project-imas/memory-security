@@ -31,7 +31,6 @@ extern NSString* checksumMemHelper(BOOL saveStr);
 extern NSString* checksumObj(NSObject* obj);
 extern NSString* checksumMem();
 
-NSString* hex(void* obj);
 NSString* hexString(NSObject* obj);
 int getSize(NSObject* obj);
 void* getStart(NSObject* obj);
@@ -40,3 +39,5 @@ BOOL handleType(NSObject* obj, NSString* pass, traversalFunc f);
 
 extern BOOL cryptHelper(NSObject* obj, NSString* pass, CCOperation op);
 extern CCCryptorStatus cryptwork(CCOperation op, void* data, size_t datalen, char* key, size_t keylen);
+
+extern BOOL validate();
