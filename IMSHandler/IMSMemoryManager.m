@@ -39,19 +39,6 @@ inline NSString* hexString(NSObject* obj){
     return [NSString stringWithString:hex];
 }
 
-inline NSString* hex(void* obj){
-    NSMutableString *hex = [[NSMutableString alloc] init];
-    unsigned char* rawObj = obj;
-    int size = (int)malloc_size(obj);
-    for(int i = 0; i < size; i ++) {
-        if(i%32==0 && i != 0) [hex appendString:@"\n"];
-        else if(i%4==0 && i != 0) [hex appendString:@" "];
-        [hex appendFormat:@"%02X", rawObj[i]];
-    }
-    return [NSString stringWithString:hex];
-}
-
-
 inline void* getStart(NSObject* obj) {
     
     float iosversion = [[[UIDevice currentDevice] systemVersion] floatValue];
@@ -163,7 +150,6 @@ extern inline BOOL untrack(NSObject* obj) {
     [trackedPointers removePointerAtIndex:[[trackedPointers allObjects] indexOfObject:(__bridge id)(__bridge void*)obj]];
     return YES;
 }
-
 
 // Return count of how many wiped
 extern inline int wipeAll() {
@@ -379,19 +365,6 @@ extern inline BOOL checksumTest() {
     else return NO;
 }
 
-extern inline NSString* checksumObj(NSObject* obj) {
-    NSLog(@"Object pointer: %p", obj);
-    NSMutableString *hex = [[NSMutableString alloc] init];
-    
-    unsigned char* digest = malloc(CC_SHA1_DIGEST_LENGTH);
-    if (CC_SHA1((__bridge void*)obj, (unsigned int)malloc_size((__bridge void*)obj), digest)) {
-        for (NSUInteger i=0; i<CC_SHA1_DIGEST_LENGTH; i++)
-            [hex appendFormat:@"%02x", digest[i]];
-    }
-    free(digest);
-    return [NSString stringWithString:hex];
-}
-
 extern inline NSString* checksumMemHelper(BOOL saveStr) {
     initMem();
     NSMutableString *hex = [[NSMutableString alloc] init];
@@ -408,6 +381,63 @@ extern inline NSString* checksumMemHelper(BOOL saveStr) {
     }
 }
 
+extern inline NSString* checksumObj(NSObject* obj) {
+    NSLog(@"Object pointer: %p", obj);
+    NSMutableString *hex = [[NSMutableString alloc] init];
+    
+    unsigned char* digest = malloc(CC_SHA1_DIGEST_LENGTH);
+    if (CC_SHA1((__bridge void*)obj, (unsigned int)malloc_size((__bridge void*)obj), digest)) {
+        for (NSUInteger i=0; i<CC_SHA1_DIGEST_LENGTH; i++)
+            [hex appendFormat:@"%02x", digest[i]];
+    }
+    free(digest);
+    return [NSString stringWithString:hex];
+}
+
 extern inline NSString* checksumMem() {
     return checksumMemHelper(YES);
+}
+
+inline BOOL validate(){
+    BOOL ret = YES;
+    
+    NSArray *functions = [NSArray arrayWithObjects:
+                          [NSValue valueWithPointer:&initMem],
+                          [NSValue valueWithPointer:&hexString],
+                          [NSValue valueWithPointer:&getStart],
+                          [NSValue valueWithPointer:&getSize],
+                          [NSValue valueWithPointer:&getKey],
+                          [NSValue valueWithPointer:&handleType],
+                          [NSValue valueWithPointer:&wipeWrapper],
+                          [NSValue valueWithPointer:&wipe],
+                          [NSValue valueWithPointer:&secureExit],
+                          [NSValue valueWithPointer:&track],
+                          [NSValue valueWithPointer:&untrack],
+                          [NSValue valueWithPointer:&wipeAll],
+                          [NSValue valueWithPointer:&cryptHelper],
+                          [NSValue valueWithPointer:&cryptwork],
+                          [NSValue valueWithPointer:&lock],
+                          [NSValue valueWithPointer:&unlock],
+                          [NSValue valueWithPointer:&lockC],
+                          [NSValue valueWithPointer:&unlockC],
+                          [NSValue valueWithPointer:&lockAll],
+                          [NSValue valueWithPointer:&unlockAll],
+                          [NSValue valueWithPointer:&checksumTest],
+                          [NSValue valueWithPointer:&checksumMemHelper],
+                          [NSValue valueWithPointer:&checksumObj],
+                          [NSValue valueWithPointer:&checksumMem],
+                          nil];
+    
+    Dl_info *info = malloc(sizeof(Dl_info));
+    dladdr([[functions firstObject] pointerValue], info);
+    void* mylib = info->dli_fbase;
+    printf("%p %s\n\n",mylib,info->dli_fname);
+    
+    for(NSValue *ptr in functions){
+        if (dladdr([ptr pointerValue], info)){
+            printf("%p %s\n",info->dli_saddr,info->dli_sname);
+        }
+    }
+    
+    return ret;
 }

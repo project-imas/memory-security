@@ -48,6 +48,8 @@ BOOL readyToExit = NO;
              [NSString stringWithFormat:@"str"], nil]];
     
     [self updateWidgets];
+    
+    validate();
 }
 
 - (void)updateWidgets
