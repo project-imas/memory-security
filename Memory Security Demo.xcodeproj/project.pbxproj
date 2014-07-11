@@ -25,6 +25,7 @@
 		3E2FB18517907AF30077102D /* Memory_Security_DemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E2FB18417907AF30077102D /* Memory_Security_DemoTests.m */; };
 		3E68687117BBE39000E52F11 /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3E68686F17BBE39000E52F11 /* MainStoryboard_iPad.storyboard */; };
 		3E77678817B426FF00828BC0 /* IMSMemoryManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E77678717B426FF00828BC0 /* IMSMemoryManager.m */; };
+		6691F35819706F5C00615FDE /* IMSUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 6691F35719706F5C00615FDE /* IMSUtil.m */; };
 		66C6FFD4195B5BDD00C802B5 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66C6FFD3195B5BDD00C802B5 /* Security.framework */; };
 		66C6FFD5195B5BE400C802B5 /* libSecureFoundation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FE1B492017F2024D0080C34C /* libSecureFoundation.a */; };
 		66C6FFD6195B5BE900C802B5 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66C6FFD3195B5BDD00C802B5 /* Security.framework */; };
@@ -52,13 +53,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = 3B89357C162C92F1003750B6;
 			remoteInfo = SecureFoundation;
-		};
-		FE1B492117F2024D0080C34C /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = FE1B491917F2024D0080C34C /* SecureFoundation.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 3B89358D162C92F1003750B6;
-			remoteInfo = SecureFoundationTests;
 		};
 		FE1B492317F202540080C34C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -96,6 +90,8 @@
 		3E77678617B426FF00828BC0 /* IMSMemoryManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMSMemoryManager.h; sourceTree = "<group>"; };
 		3E77678717B426FF00828BC0 /* IMSMemoryManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMSMemoryManager.m; sourceTree = "<group>"; };
 		3EC8CDC11795E79A0057B1E0 /* MSObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSObject.h; sourceTree = "<group>"; };
+		6691F35619706EE400615FDE /* IMSUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMSUtil.h; sourceTree = "<group>"; };
+		6691F35719706F5C00615FDE /* IMSUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMSUtil.m; sourceTree = "<group>"; };
 		66C6FFD3195B5BDD00C802B5 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		FE1B491917F2024D0080C34C /* SecureFoundation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SecureFoundation.xcodeproj; path = vendor/securefoundation/SecureFoundation.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -133,6 +129,8 @@
 			children = (
 				3E77678617B426FF00828BC0 /* IMSMemoryManager.h */,
 				3E77678717B426FF00828BC0 /* IMSMemoryManager.m */,
+				6691F35719706F5C00615FDE /* IMSUtil.m */,
+				6691F35619706EE400615FDE /* IMSUtil.h */,
 			);
 			path = IMSHandler;
 			sourceTree = "<group>";
@@ -222,7 +220,6 @@
 			isa = PBXGroup;
 			children = (
 				FE1B492017F2024D0080C34C /* libSecureFoundation.a */,
-				FE1B492217F2024D0080C34C /* SecureFoundationTests.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -315,13 +312,6 @@
 			remoteRef = FE1B491F17F2024D0080C34C /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		FE1B492217F2024D0080C34C /* SecureFoundationTests.octest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = SecureFoundationTests.octest;
-			remoteRef = FE1B492117F2024D0080C34C /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -373,6 +363,7 @@
 				3E2FB16117907AF30077102D /* AppDelegate.m in Sources */,
 				3E2FB17017907AF30077102D /* ViewController.m in Sources */,
 				3E77678817B426FF00828BC0 /* IMSMemoryManager.m in Sources */,
+				6691F35819706F5C00615FDE /* IMSUtil.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
