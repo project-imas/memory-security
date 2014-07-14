@@ -6,68 +6,89 @@
 //  Copyright (c) 2013 Black, Gavin S. All rights reserved.
 //
 
-#import <sys/mman.h>
+//#include <dlfcn.h>
 
+#include "IMSUtil.h"
 #import "IMSMemoryManager.h"
 
-const int OFFSET_SSTRING = 9;
-const int OFFSET_LSTRING = 12;
-const int OFFSET_NUMBER  = 8;
-const int OFFSET_ARRAY   = 8;
+// 32-bit
+const int OFFSET32_SSTRING = 9;
+const int OFFSET32_LSTRING = 12;
+const int OFFSET32_NUMBER  = 8;
+const int OFFSET32_ARRAY   = 8;
+const int OFFSET32_DATA7   = 8;        // iOS >= 7.0
+const int OFFSET32_DATA6   = 16;       // iOS <= 6.1
 
-const int OFFSET_7DATA    = 8;        // iOS >= 7.0
-const int OFFSET_6DATA    = 16;       // iOS <= 6.1
+//64-bit
+const int OFFSET64_SSTRING = 17;
+const int OFFSET64_LSTRING = 24;
+const int OFFSET64_NUMINT  = 1;
+const int OFFSET64_NUMDEC  = 16;
+const int OFFSET64_ARRAY   = 8;
+const int OFFSET64_DATA7   = 16;
 
+static NSMutableArray* functionPointers;
 static NSPointerArray* trackedPointers;
 static NSString* checksumStr;
 static NSMutableDictionary *ivtable;
 
 void initMem(){
     if(!trackedPointers)
-        trackedPointers =[[NSPointerArray alloc] init];
+        trackedPointers = [[NSPointerArray alloc] init];
 }
 
 inline NSString* hexString(NSObject* obj){
+    
+    BOOL isNumInt64 = NO;
+    unsigned char* rawObj = (__bridge void*)obj;
     NSMutableString *hex = [[NSMutableString alloc] init];
-    unsigned char* rawObj = (__bridge void*) obj;
-    int size = (int)malloc_size((__bridge void*) obj);
-    for(int i = 0; i < size; i ++) {
-        if(i%32==0 && i != 0) [hex appendString:@"\n"];
-        else if(i%4==0 && i != 0) [hex appendString:@" "];
-        [hex appendFormat:@"%02X", rawObj[i]];
+
+    
+    if([obj isKindOfClass:[NSNumber class]]){
+        char type = *[(NSNumber*)obj objCType];
+        unsigned char msb = ((u_int64_t)rawObj >> (14*4)) & 0xf0;
+        isNumInt64 = ((type == 'i' || type == 'q' || type == 'l') && msb == 0xb0);
     }
+    
+    if(isNumInt64){
+        unsigned char* raw = (unsigned char*)&rawObj;
+        for(int i=0;i<8;i++) [hex appendFormat:((i%4==0 && i>0)?@" %02X":@"%02X"),raw[i]];
+    }
+    else {
+        int size = (int)malloc_size((__bridge void*) obj);
+        for(int i = 0; i < size; i ++) {
+            if(i%32==0 && i != 0) [hex appendString:@"\n"];
+            else if(i%4==0 && i != 0) [hex appendString:@" "];
+            [hex appendFormat:@"%02X", rawObj[i]];
+        }
+    }
+    
     return [NSString stringWithString:hex];
 }
-
-inline NSString* hex(void* obj){
-    NSMutableString *hex = [[NSMutableString alloc] init];
-    unsigned char* rawObj = obj;
-    int size = (int)malloc_size(obj);
-    for(int i = 0; i < size; i ++) {
-        if(i%32==0 && i != 0) [hex appendString:@"\n"];
-        else if(i%4==0 && i != 0) [hex appendString:@" "];
-        [hex appendFormat:@"%02X", rawObj[i]];
-    }
-    return [NSString stringWithString:hex];
-}
-
 
 inline void* getStart(NSObject* obj) {
     
+    BOOL is64bit = is64bitHardware();
     float iosversion = [[[UIDevice currentDevice] systemVersion] floatValue];
     
     if([obj isKindOfClass:[NSString class]]) {
         if([(NSString*)obj length] < 256)
-            return ((__bridge void*)obj + OFFSET_SSTRING);
+            return ((__bridge void*)obj + ((is64bit)?OFFSET64_SSTRING:OFFSET32_SSTRING));
         else
-            return ((__bridge void*)obj + OFFSET_LSTRING);
+            return ((__bridge void*)obj + ((is64bit)?OFFSET64_LSTRING:OFFSET32_LSTRING));
     } else if([obj isKindOfClass:[NSData class]]) {
-//        return ((__bridge void*)obj + OFFSET_7DATA);
-        return ((__bridge void*)obj + ((iosversion < 7.0)?OFFSET_6DATA:OFFSET_7DATA));
+        return ((__bridge void*)obj + ((is64bit)?OFFSET64_DATA7:((iosversion < 7.0)?OFFSET32_DATA6:OFFSET32_DATA7)));
     } else if([obj isKindOfClass:[NSNumber class]]) {
-        return ((__bridge void*)obj + OFFSET_NUMBER);
+        char type = *[(NSNumber*)obj objCType];
+        if(!is64bit)
+            return ((__bridge void*)obj + OFFSET32_NUMBER);
+        else if(type == 'i' || type == 'l' || type == 'q'){
+            return NULL;// + OFFSET64_NUMINT); THIS IS ISSUE
+        }
+        else
+            return ((__bridge void*)obj + OFFSET64_NUMDEC);
     } else if([obj isKindOfClass:[NSArray class]]) {
-        return ((__bridge void*)obj + OFFSET_ARRAY);
+        return ((__bridge void*)obj + OFFSET32_ARRAY);
     } else {
         return 0;
     }
@@ -75,20 +96,26 @@ inline void* getStart(NSObject* obj) {
 
 inline int getSize(NSObject* obj) {
     
+    BOOL is64bit = is64bitHardware();
     float iosversion = [[[UIDevice currentDevice] systemVersion] floatValue];
     
     if([obj isKindOfClass:[NSString class]]) {
         if ([(NSString *)obj length] < 256)
-            return (int)(malloc_size((__bridge void*)obj) - OFFSET_SSTRING);
+            return (int)(malloc_size((__bridge void*)obj) - ((is64bit)?OFFSET64_SSTRING:OFFSET32_SSTRING));
         else
-            return (int)(malloc_size((__bridge void*)obj) - OFFSET_LSTRING);
+            return (int)(malloc_size((__bridge void*)obj) - ((is64bit)?OFFSET64_LSTRING:OFFSET32_LSTRING));
     } else if([obj isKindOfClass:[NSData class]]) {
-//        return (int)(malloc_size((__bridge void*)obj) - OFFSET_7DATA);
-        return (int)(malloc_size((__bridge void*)obj) - ((iosversion < 7.0)?OFFSET_6DATA:OFFSET_7DATA));
+        return (int)(malloc_size((__bridge void*)obj) - ((is64bit)?OFFSET64_DATA7:((iosversion < 7.0)?OFFSET32_DATA6:OFFSET32_DATA7)));
     } else if([obj isKindOfClass:[NSNumber class]]) {
-        return (int)(malloc_size((__bridge void*)obj) - OFFSET_NUMBER);
+        char type = *[(NSNumber*)obj objCType];
+        if(!is64bit)
+            return (int)(malloc_size((__bridge void*)obj) - OFFSET32_NUMBER);
+        else if(type == 'i' || type == 'l' || type == 'q')
+            return -1;
+        else
+            return (int)(malloc_size((__bridge void*)obj) - OFFSET64_NUMDEC);
     } else if([obj isKindOfClass:[NSArray class]]) {
-        return (int)(malloc_size((__bridge void*)obj) - OFFSET_ARRAY);
+        return (int)(malloc_size((__bridge void*)obj) - OFFSET32_ARRAY);
     } else {
         return 0;
     }
@@ -178,7 +205,7 @@ extern inline BOOL cryptHelper(NSObject* obj, NSString* pass, CCOperation op) {
     BOOL success = NO;
     CCCryptorStatus cryptorStatus;
     
-    NSLog(@"\nObject pointer: %p", obj);
+    NSLog(@"\nObject pointer: %p location: %p", obj, &obj);
     char *keyPtr = malloc(kCCKeySizeAES256+1);
     bzero(keyPtr, kCCKeySizeAES256+1);
     [pass getCString:keyPtr maxLength:kCCKeySizeAES256 encoding:NSUTF8StringEncoding];
@@ -186,18 +213,20 @@ extern inline BOOL cryptHelper(NSObject* obj, NSString* pass, CCOperation op) {
     cryptorStatus = cryptwork(op, getStart(obj), getSize(obj), keyPtr, kCCKeySizeAES256);
     
     switch(cryptorStatus){
-        case kCCSuccess:        NSLog(@"SUCCESS");              success = YES;      break;
-        case kCCParamError:     NSLog(@"ERR: PARAMETER ERROR");                     break;
-        case kCCBufferTooSmall: NSLog(@"ERR: BUFFER TOO SMALL");                    break;
-        case kCCMemoryFailure:  NSLog(@"ERR: MEMORY FAILURE");                      break;
-        case kCCAlignmentError: NSLog(@"ERR: ALIGNMENT ERROR");                     break;
-        case kCCDecodeError:    NSLog(@"ERR: DECODE ERROR");                        break;
-        case kCCUnimplemented:  NSLog(@"ERR: UNIMPLEMENTED");                       break;
-        case kCCOverflow:       NSLog(@"ERR: OVERFLOW");                            break;
-        case (-1):              NSLog(@"ERR: CANNOT UNLOCK, OBJECT NOT LOCKED");    break;
-        case (-2):              NSLog(@"ERR: NULL IV");                             break;
-        case (-3):              NSLog(@"ERR: CANNOT LOCK, OBJECT ALREADY LOCKED");  break;
-        default:                NSLog(@"ERR: UNKNOWN ERROR(%d)",cryptorStatus);     break;
+        case kCCSuccess:        NSLog(@"SUCCESS");              success = YES;          break;
+        case kCCParamError:     NSLog(@"ERR: PARAMETER ERROR");                         break;
+        case kCCBufferTooSmall: NSLog(@"ERR: BUFFER TOO SMALL");                        break;
+        case kCCMemoryFailure:  NSLog(@"ERR: MEMORY FAILURE");                          break;
+        case kCCAlignmentError: NSLog(@"ERR: ALIGNMENT ERROR");                         break;
+        case kCCDecodeError:    NSLog(@"ERR: DECODE ERROR");                            break;
+        case kCCUnimplemented:  NSLog(@"ERR: UNIMPLEMENTED");                           break;
+        case kCCOverflow:       NSLog(@"ERR: OVERFLOW");                                break;
+        case (-1):              NSLog(@"ERR: CANNOT UNLOCK, OBJECT NOT LOCKED");        break;
+        case (-2):              NSLog(@"ERR: NULL IV");                                 break;
+        case (-3):              NSLog(@"ERR: CANNOT LOCK, OBJECT ALREADY LOCKED");      break;
+        case (-4):              NSLog(@"ERR: 64bit NSNumber INT/LONG not supported.");  break;
+        case (-5):              NSLog(@"ERR: NULL POINTER ERROR");                      break;
+        default:                NSLog(@"ERR: UNKNOWN ERROR(%d)",cryptorStatus);         break;
     }
     
     bzero(keyPtr, kCCKeySizeAES256+1);
@@ -207,6 +236,15 @@ extern inline BOOL cryptHelper(NSObject* obj, NSString* pass, CCOperation op) {
 
 extern inline CCCryptorStatus cryptwork(CCOperation op ,void* dataIn, size_t datalen, char* key, size_t keylen){
     
+    CCCryptorStatus cryptorStatus;
+    
+    if (dataIn == NULL) {
+        if (datalen == -1)
+            return (cryptorStatus = -4);
+        else
+            return (cryptorStatus = -5);
+    }
+    
     int saltlen = 8;
     int ivlen = kCCBlockSizeAES128;
     
@@ -215,7 +253,6 @@ extern inline CCCryptorStatus cryptwork(CCOperation op ,void* dataIn, size_t dat
     bzero(dataOut, datalen);
     size_t dataOutMoved = 0;
     CCCryptorRef cryptorRef = NULL;
-    CCCryptorStatus cryptorStatus;
     
     /* initialize ivtable if not already
      * table format (dictionary): { pointerAddress : < iv[16 bytes] salt[8 bytes] > }
@@ -411,3 +448,25 @@ extern inline NSString* checksumMemHelper(BOOL saveStr) {
 extern inline NSString* checksumMem() {
     return checksumMemHelper(YES);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
