@@ -432,10 +432,9 @@ inline BOOL validate(){
     dladdr([[functions firstObject] pointerValue], info);
     void* mylib = info->dli_fbase;
     printf("%p %s\n\n",mylib,info->dli_fname);
-    
     for(NSValue *ptr in functions){
         if (dladdr([ptr pointerValue], info)){
-            printf("%p %s\n",info->dli_saddr,info->dli_sname);
+            printf("%p %s\n",(unsigned char*)(info->dli_saddr - mylib),info->dli_sname);
         }
     }
     
