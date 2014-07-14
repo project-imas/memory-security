@@ -39,7 +39,6 @@ void initMem(){
 
 inline NSString* hexString(NSObject* obj){
     
-    NSLog(@"%p %zu",obj, malloc_size((__bridge void*)obj));
     BOOL isNumInt64 = NO;
     unsigned char* rawObj = (__bridge void*)obj;
     NSMutableString *hex = [[NSMutableString alloc] init];
@@ -47,7 +46,6 @@ inline NSString* hexString(NSObject* obj){
     
     if([obj isKindOfClass:[NSNumber class]]){
         char type = *[(NSNumber*)obj objCType];
-        NSLog(@"%c",type);
         unsigned char msb = ((u_int64_t)rawObj >> (14*4)) & 0xf0;
         isNumInt64 = ((type == 'i' || type == 'q' || type == 'l') && msb == 0xb0);
     }
@@ -113,7 +111,7 @@ inline int getSize(NSObject* obj) {
         if(!is64bit)
             return (int)(malloc_size((__bridge void*)obj) - OFFSET32_NUMBER);
         else if(type == 'i' || type == 'l' || type == 'q')
-            return 0;
+            return -1;
         else
             return (int)(malloc_size((__bridge void*)obj) - OFFSET64_NUMDEC);
     } else if([obj isKindOfClass:[NSArray class]]) {
@@ -215,18 +213,20 @@ extern inline BOOL cryptHelper(NSObject* obj, NSString* pass, CCOperation op) {
     cryptorStatus = cryptwork(op, getStart(obj), getSize(obj), keyPtr, kCCKeySizeAES256);
     
     switch(cryptorStatus){
-        case kCCSuccess:        NSLog(@"SUCCESS");              success = YES;      break;
-        case kCCParamError:     NSLog(@"ERR: PARAMETER ERROR");                     break;
-        case kCCBufferTooSmall: NSLog(@"ERR: BUFFER TOO SMALL");                    break;
-        case kCCMemoryFailure:  NSLog(@"ERR: MEMORY FAILURE");                      break;
-        case kCCAlignmentError: NSLog(@"ERR: ALIGNMENT ERROR");                     break;
-        case kCCDecodeError:    NSLog(@"ERR: DECODE ERROR");                        break;
-        case kCCUnimplemented:  NSLog(@"ERR: UNIMPLEMENTED");                       break;
-        case kCCOverflow:       NSLog(@"ERR: OVERFLOW");                            break;
-        case (-1):              NSLog(@"ERR: CANNOT UNLOCK, OBJECT NOT LOCKED");    break;
-        case (-2):              NSLog(@"ERR: NULL IV");                             break;
-        case (-3):              NSLog(@"ERR: CANNOT LOCK, OBJECT ALREADY LOCKED");  break;
-        default:                NSLog(@"ERR: UNKNOWN ERROR(%d)",cryptorStatus);     break;
+        case kCCSuccess:        NSLog(@"SUCCESS");              success = YES;          break;
+        case kCCParamError:     NSLog(@"ERR: PARAMETER ERROR");                         break;
+        case kCCBufferTooSmall: NSLog(@"ERR: BUFFER TOO SMALL");                        break;
+        case kCCMemoryFailure:  NSLog(@"ERR: MEMORY FAILURE");                          break;
+        case kCCAlignmentError: NSLog(@"ERR: ALIGNMENT ERROR");                         break;
+        case kCCDecodeError:    NSLog(@"ERR: DECODE ERROR");                            break;
+        case kCCUnimplemented:  NSLog(@"ERR: UNIMPLEMENTED");                           break;
+        case kCCOverflow:       NSLog(@"ERR: OVERFLOW");                                break;
+        case (-1):              NSLog(@"ERR: CANNOT UNLOCK, OBJECT NOT LOCKED");        break;
+        case (-2):              NSLog(@"ERR: NULL IV");                                 break;
+        case (-3):              NSLog(@"ERR: CANNOT LOCK, OBJECT ALREADY LOCKED");      break;
+        case (-4):              NSLog(@"ERR: 64bit NSNumber INT/LONG not supported.");  break;
+        case (-5):              NSLog(@"ERR: NULL POINTER ERROR");                      break;
+        default:                NSLog(@"ERR: UNKNOWN ERROR(%d)",cryptorStatus);         break;
     }
     
     bzero(keyPtr, kCCKeySizeAES256+1);
@@ -236,7 +236,14 @@ extern inline BOOL cryptHelper(NSObject* obj, NSString* pass, CCOperation op) {
 
 extern inline CCCryptorStatus cryptwork(CCOperation op ,void* dataIn, size_t datalen, char* key, size_t keylen){
     
-    NSLog(@"start: %p len %zu",dataIn,datalen);
+    CCCryptorStatus cryptorStatus;
+    
+    if (dataIn == NULL) {
+        if (datalen == -1)
+            return (cryptorStatus = -4);
+        else
+            return (cryptorStatus = -5);
+    }
     
     int saltlen = 8;
     int ivlen = kCCBlockSizeAES128;
@@ -246,7 +253,6 @@ extern inline CCCryptorStatus cryptwork(CCOperation op ,void* dataIn, size_t dat
     bzero(dataOut, datalen);
     size_t dataOutMoved = 0;
     CCCryptorRef cryptorRef = NULL;
-    CCCryptorStatus cryptorStatus;
     
     /* initialize ivtable if not already
      * table format (dictionary): { pointerAddress : < iv[16 bytes] salt[8 bytes] > }
@@ -443,38 +449,6 @@ extern inline NSString* checksumMem() {
     return checksumMemHelper(YES);
 }
 
-extern inline BOOL validate(){
-    
-    functionPointers = [NSMutableArray arrayWithObjects:
-                        [NSValue valueWithPointer:&track],
-                        [NSValue valueWithPointer:&untrack],
-                        [NSValue valueWithPointer:&wipe],
-                        [NSValue valueWithPointer:&wipeAll],
-                        [NSValue valueWithPointer:&secureExit],
-                        [NSValue valueWithPointer:&lock],
-                        [NSValue valueWithPointer:&unlock],
-                        [NSValue valueWithPointer:&lockAll],
-                        [NSValue valueWithPointer:&unlockAll],
-                        [NSValue valueWithPointer:&lockC],
-                        [NSValue valueWithPointer:&unlockC],
-                        [NSValue valueWithPointer:&checksumTest],
-                        [NSValue valueWithPointer:&checksumMemHelper],
-                        [NSValue valueWithPointer:&checksumObj],
-                        [NSValue valueWithPointer:&checksumMem],
-                        [NSValue valueWithPointer:&hexString],
-                        [NSValue valueWithPointer:&getSize],
-                        [NSValue valueWithPointer:&getStart],
-                        [NSValue valueWithPointer:&getKey],
-                        [NSValue valueWithPointer:&handleType],
-                        [NSValue valueWithPointer:&cryptHelper],
-                        [NSValue valueWithPointer:&cryptwork],
-                        nil];
-    
-    Dl_info * info = malloc(sizeof(Dl_info));
-    
-    
-    return YES;
-}
 
 
 

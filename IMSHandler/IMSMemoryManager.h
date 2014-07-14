@@ -39,5 +39,3 @@ BOOL handleType(NSObject* obj, NSString* pass, traversalFunc f);
 
 extern BOOL cryptHelper(NSObject* obj, NSString* pass, CCOperation op);
 extern CCCryptorStatus cryptwork(CCOperation op, void* data, size_t datalen, char* key, size_t keylen);
-
-extern BOOL validate();
