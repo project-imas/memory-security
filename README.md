@@ -59,6 +59,21 @@ The "iMAS Secure Memory" framework provides a set of tools for securing, clearin
   // Test whether the current memory state of all tracked objects matches the state it was in when checksumMem was called
   // YES if checksums matched, NO otherwise
   checksumTest();
+  
+  // Encrypt a primitive C type or struct
+  lockC(void* obj, int size, char* pass);
+  
+  // Decrypt a primitive C type or struct
+  unlockC(void* obj, int size, char* pass);
+  
+  // Track function address for validity checking
+  validateTrack(void* foo);
+  
+  // Check function for address/offset validity
+  validateCheck(void* foo);
+  
+  // returns IMP type function pointer to the implementation of an objc NSObject selector to use with validate checking
+  objcFuncPtr(const char* cls, const char* sel);
 ``` 
 
 ## Caution on password usage
