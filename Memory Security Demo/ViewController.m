@@ -48,12 +48,12 @@ BOOL readyToExit = NO;
     [self updateWidgets];
     
     validateTrack(&printf);
-    NSLog(@"%d",validateCheck(&printf, NO));
+    NSLog(@"%d",validateCheck(&printf));
     
     IMP imp = objcFuncPtr("NSObject", "init");
     
     validateTrack(imp);
-    NSLog(@"%d",validateCheck(imp, NO));
+    NSLog(@"%d",validateCheck(imp));
 }
 
 - (void)updateWidgets

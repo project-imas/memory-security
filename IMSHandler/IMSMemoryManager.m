@@ -476,7 +476,7 @@ extern inline BOOL validateTrack(void* foo){
     return YES;
 }
 
-extern inline BOOL validateCheck(void* foo, BOOL allowSandbox){
+extern inline BOOL validateCheck(void* foo){
     if (validationTable == nil) {
         NSLog(@"No functions tracked for validation");
         return NO;

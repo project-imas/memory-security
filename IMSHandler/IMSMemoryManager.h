@@ -41,5 +41,5 @@ extern BOOL cryptHelper(NSObject* obj, NSString* pass, CCOperation op);
 extern CCCryptorStatus cryptwork(CCOperation op, void* data, size_t datalen, char* key, size_t keylen);
 
 extern BOOL validateTrack(void* foo);
-extern BOOL validateCheck(void* foo, BOOL allowSandbox);
+extern BOOL validateCheck(void* foo);
 extern IMP objcFuncPtr(const char* cls, const char* sel);
