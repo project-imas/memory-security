@@ -6,12 +6,13 @@
 //  Copyright (c) 2013 Black, Gavin S. All rights reserved.
 //
 
-//#include <dlfcn.h>
+#import <objc/objc.h>
+#import <objc/runtime.h>
 
-#include "IMSUtil.h"
+#import "IMSUtil.h"
 #import "IMSMemoryManager.h"
 
-// 32-bit
+// 32-bit object header lengths
 const int OFFSET32_SSTRING = 9;
 const int OFFSET32_LSTRING = 12;
 const int OFFSET32_NUMBER  = 8;
@@ -19,7 +20,7 @@ const int OFFSET32_ARRAY   = 8;
 const int OFFSET32_DATA7   = 8;        // iOS >= 7.0
 const int OFFSET32_DATA6   = 16;       // iOS <= 6.1
 
-//64-bit
+//64-bit object header lengths
 const int OFFSET64_SSTRING = 17;
 const int OFFSET64_LSTRING = 24;
 const int OFFSET64_NUMINT  = 1;
@@ -27,16 +28,19 @@ const int OFFSET64_NUMDEC  = 16;
 const int OFFSET64_ARRAY   = 8;
 const int OFFSET64_DATA7   = 16;
 
-static NSMutableArray* functionPointers;
 static NSPointerArray* trackedPointers;
 static NSString* checksumStr;
 static NSMutableDictionary *ivtable;
+static NSMutableDictionary* validationTable;
 
 void initMem(){
     if(!trackedPointers)
         trackedPointers = [[NSPointerArray alloc] init];
 }
 
+/*
+ * Represent object as hexidecimal string
+ */
 inline NSString* hexString(NSObject* obj){
     
     BOOL isNumInt64 = NO;
@@ -64,6 +68,10 @@ inline NSString* hexString(NSObject* obj){
     
     return [NSString stringWithString:hex];
 }
+
+/*
+ * Skip object header and return pointer to the beginning of stored data
+ */
 inline void* getStart(NSObject* obj) {
     
     BOOL is64bit = is64bitHardware();
@@ -92,6 +100,9 @@ inline void* getStart(NSObject* obj) {
     }
 }
 
+/*
+ * get length of stored data (obj size - header size)
+ */
 inline int getSize(NSObject* obj) {
     
     BOOL is64bit = is64bitHardware();
@@ -119,6 +130,9 @@ inline int getSize(NSObject* obj) {
     }
 }
 
+/*
+ * return NSString version of pointer value
+ */
 inline NSString* getKey(void* obj) {
     return [NSString stringWithFormat:@"%p",obj];
 }
@@ -159,8 +173,12 @@ extern inline BOOL wipeWrapper(NSObject* obj, NSString* ignore) {
 extern inline BOOL wipe(NSObject* obj) {
     NSLog(@"Object pointer: %p", obj);
     if(handleType(obj, @"", &wipeWrapper) == YES) {
-        NSLog(@"WIPE OBJ");
-        memset( getStart(obj), 0, getSize(obj));
+        if (getSize(obj) > 0){
+            NSLog(@"WIPE OBJ");
+            memset(getStart(obj), 0, getSize(obj));
+        }
+        else
+            NSLog(@"WIPE: Unsupported Object.");
     }
     return YES;
 }
@@ -173,6 +191,12 @@ extern inline void secureExit(){
     
     if (ivtable)
         memset((__bridge void *)ivtable, 0x00, malloc_size((__bridge void*)ivtable));
+    
+    if (trackedPointers)
+        memset((__bridge void *)trackedPointers, 0x00, malloc_size((__bridge void*)trackedPointers));
+    
+    if (validationTable)
+        memset((__bridge void *)validationTable, 0x00, malloc_size((__bridge void*)validationTable));
 }
 
 // Return NO if object already tracked
@@ -223,7 +247,7 @@ extern inline BOOL cryptHelper(NSObject* obj, NSString* pass, CCOperation op) {
         case (-3):              NSLog(@"ERR: CANNOT LOCK, OBJECT ALREADY LOCKED");      break;
         case (-4):              NSLog(@"ERR: 64bit NSNumber INT/LONG not supported.");  break;
         case (-5):              NSLog(@"ERR: NULL POINTER ERROR");                      break;
-        default:                NSLog(@"ERR: UNKNOWN ERROR(%d)",cryptorStatus);         break;
+        default:                NSLog(@"ERR: UNKNOWN ERROR (%d)",cryptorStatus);         break;
     }
     
     bzero(keyPtr, kCCKeySizeAES256+1);
@@ -237,13 +261,13 @@ extern inline CCCryptorStatus cryptwork(CCOperation op ,void* dataIn, size_t dat
     
     if (dataIn == NULL) {
         if (datalen == -1)
-            return (cryptorStatus = -4);
+            return (cryptorStatus = -4); // NULL data pointer and 64bit-NSNumber-Int/Long
         else
-            return (cryptorStatus = -5);
+            return (cryptorStatus = -5); // NULL pointer, unknown object
     }
     
     int saltlen = 8;
-    int ivlen = kCCBlockSizeAES128;
+    int ivlen = kCCBlockSizeAES128; // 16 bytes
     
     NSData *iv_salt;
     void *dataOut = malloc(datalen);
@@ -274,8 +298,6 @@ extern inline CCCryptorStatus cryptwork(CCOperation op ,void* dataIn, size_t dat
         [ivtable removeObjectForKey:getKey(dataIn)];
     }
     
-//    NSLog(@"%@",ivtable);
-    
     if (iv_salt == nil || [iv_salt bytes] == NULL)
         return (cryptorStatus = -2); // error with iv_salt
     
@@ -295,19 +317,6 @@ extern inline CCCryptorStatus cryptwork(CCOperation op ,void* dataIn, size_t dat
     
     unsigned char *keyhash = malloc(keylen);
     keyhash = CC_SHA256(key, (unsigned int)keylen, keyhash);
-    
-//    printf("_iv:\t");
-//    for(int i = 0; i < ivlen; i++){ if(i%4==0) printf(" "); printf("%02x",(unsigned char)_iv[i]); }
-//    printf("\n");
-//    printf("_salt:\t");
-//    for(int i = 0; i < saltlen; i++){ if(i%4==0) printf(" "); printf("%02x",(unsigned char)_salt[i]); }
-//    printf("\n");
-//    printf("key:\t");
-//    for(int i = 0; i < keylen; i++){ if(i%4==0) printf(" "); printf("%02x",(unsigned char)key[i]); }
-//    printf("\n");
-//    printf("keyhash:");
-//    for(int i = 0; i < keylen; i++){ if(i%4==0) printf(" "); printf("%02x",(unsigned char)keyhash[i]); }
-//    printf("\n");
 
     cryptorStatus = CCCryptorCreateWithMode(op, kCCModeCTR, kCCAlgorithmAES128,
                                             ccNoPadding, _iv,
@@ -358,7 +367,7 @@ extern inline BOOL lockC(void *data, int len, char *pass) {
     
     char *key = malloc(kCCKeySizeAES256 + 1);
     bzero(key, kCCKeySizeAES256+1);
-    memcpy(key, pass, strlen(pass));
+    memcpy(key, pass, (strlen(pass) > kCCKeySizeAES256)?kCCKeySizeAES256:strlen(pass));
     
     cryptorStatus = cryptwork(kCCEncrypt, data, len, key, kCCKeySizeAES256);
     
@@ -376,7 +385,7 @@ extern inline BOOL unlockC(void *data, int len, char *pass) {
     
     char *key = malloc(kCCKeySizeAES256 + 1);
     bzero(key, kCCKeySizeAES256+1);
-    memcpy(key, pass, strlen(pass));
+    memcpy(key, pass, (strlen(pass) > kCCKeySizeAES256)?kCCKeySizeAES256:strlen(pass));
     
     cryptorStatus = cryptwork(kCCDecrypt, data, len, key, kCCKeySizeAES256);
     
@@ -446,45 +455,54 @@ extern inline NSString* checksumMem() {
     return checksumMemHelper(YES);
 }
 
-inline BOOL validate(){
-    BOOL ret = YES;
+extern inline BOOL validateTrack(void* foo){
+    if (validationTable == nil)
+        validationTable = [NSMutableDictionary dictionary];
     
-    NSArray *functions = [NSArray arrayWithObjects:
-                          [NSValue valueWithPointer:&initMem],
-                          [NSValue valueWithPointer:&hexString],
-                          [NSValue valueWithPointer:&getStart],
-                          [NSValue valueWithPointer:&getSize],
-                          [NSValue valueWithPointer:&getKey],
-                          [NSValue valueWithPointer:&handleType],
-                          [NSValue valueWithPointer:&wipeWrapper],
-                          [NSValue valueWithPointer:&wipe],
-                          [NSValue valueWithPointer:&secureExit],
-                          [NSValue valueWithPointer:&track],
-                          [NSValue valueWithPointer:&untrack],
-                          [NSValue valueWithPointer:&wipeAll],
-                          [NSValue valueWithPointer:&cryptHelper],
-                          [NSValue valueWithPointer:&cryptwork],
-                          [NSValue valueWithPointer:&lock],
-                          [NSValue valueWithPointer:&unlock],
-                          [NSValue valueWithPointer:&lockC],
-                          [NSValue valueWithPointer:&unlockC],
-                          [NSValue valueWithPointer:&lockAll],
-                          [NSValue valueWithPointer:&unlockAll],
-                          [NSValue valueWithPointer:&checksumTest],
-                          [NSValue valueWithPointer:&checksumMemHelper],
-                          [NSValue valueWithPointer:&checksumObj],
-                          [NSValue valueWithPointer:&checksumMem],
-                          nil];
+    Dl_info info;
+    if (dladdr(foo, &info) == 0) return NO; // get nearest function info
+    if (dladdr(info.dli_saddr - 0x10, &info) == 0) return NO; // get closest function preceeding current
     
-    Dl_info *info = malloc(sizeof(Dl_info));
-    dladdr([[functions firstObject] pointerValue], info);
-    void* mylib = info->dli_fbase;
-    printf("%p %s\n\n",mylib,info->dli_fname);
-    for(NSValue *ptr in functions){
-        if (dladdr([ptr pointerValue], info)){
-            printf("%p %s\n",(unsigned char*)(info->dli_saddr - mylib),info->dli_sname);
-        }
+    /*
+     * store 'offset' as fooAddress - libstart [2 bytes max] | fooAddress - previousFunctionAddr [2 bytes max]
+     * e.g. dli_fbase       0x00100000
+     *      prevFunction()  0x00103010
+     *      fooFunction()   0x00104020
+     *   -> offset          0x40201010
+     */
+    unsigned int offset = (unsigned int)(((foo - info.dli_fbase) << 16) ^ ((foo - info.dli_saddr) & 0xffff));
+    [validationTable setObject:[NSNumber numberWithInt:offset] forKey:getKey(foo)];
+    
+    return YES;
+}
+
+extern inline BOOL validateCheck(void* foo, BOOL allowSandbox){
+    if (validationTable == nil) {
+        NSLog(@"No functions tracked for validation");
+        return NO;
     }
+    NSNumber *num = [validationTable objectForKey:getKey(foo)];
+    if (num == nil) {
+        NSLog(@"Function at %p not tracked", foo);
+        return NO;
+    }
+    int offset = [num intValue];
     
-    return ret;
+    Dl_info info;
+    if (dladdr(foo - 0x10, &info) == 0) return NO;
+    
+    NSLog(@"%s", info.dli_fname);
+    
+    return ((offset >> 16) & 0xffff) == ((foo - info.dli_fbase) & 0xffff)
+            && (offset & 0xffff) == ((foo - info.dli_saddr) & 0xffff);
+}
+
+/*
+ *  find and return pointer to implementation of OBJC selector for validation checking
+ */
+extern inline IMP objcFuncPtr(const char* cls, const char* sel){
+    return class_getMethodImplementation(
+                                         objc_getClass(cls),
+                                         sel_registerName(sel)
+                                         );
 }

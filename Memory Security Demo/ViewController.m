@@ -5,8 +5,6 @@
 //  Created by Black, Gavin S. on 7/12/13.
 //  Copyright (c) 2013 Black, Gavin S. All rights reserved.
 //
-#import <sys/mman.h>
-#import <dlfcn.h>
 
 #import "ViewController.h"
 #import "IMSMemoryManager.h"
@@ -49,7 +47,13 @@ BOOL readyToExit = NO;
     
     [self updateWidgets];
     
-    validate();
+    validateTrack(&printf);
+    NSLog(@"%d",validateCheck(&printf, NO));
+    
+    IMP imp = objcFuncPtr("NSObject", "init");
+    
+    validateTrack(imp);
+    NSLog(@"%d",validateCheck(imp, NO));
 }
 
 - (void)updateWidgets

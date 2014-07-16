@@ -6,11 +6,11 @@
 //  Copyright (c) 2014 Black, Gavin S. All rights reserved.
 //
 
-#include <sys/sysctl.h>
-#include <mach/mach.h>
+#import <sys/sysctl.h>
+#import <mach/mach.h>
 
 #if TARGET_IPHONE_SIMULATOR
 bool is64bitSimulator();
 #endif
-BOOL is64bitHardware();
 
+BOOL is64bitHardware();

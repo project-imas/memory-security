@@ -9,7 +9,7 @@
 //              http://blog.timac.org/?p=907
 //
 
-#include "IMSUtil.h"
+#import "IMSUtil.h"
 
 #if TARGET_IPHONE_SIMULATOR
 bool is64bitSimulator()
@@ -176,4 +176,3 @@ BOOL is64bitHardware(){
     
     return sIs64bitHardware;
 }
-
