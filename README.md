@@ -24,6 +24,16 @@ The "iMAS Secure Memory" framework provides a set of tools for securing, clearin
    #import "IMSMemoryManager.h"
 ```
 
+## Installation via CocoaPod
+
+* Add `pod 'SecureFoundation', :git => 'https://github.com/project-imas/securefoundation.git'` to your Podfile
+* On the next line, add `pod 'MemorySecurity', :git => 'https://github.com/project-imas/memory-security'`
+* Run `pod install`
+* In any file you'd like to use the memory manager, import IMSMemoryManager.h:
+```objc
+   #import "IMSMemoryManager.h"
+``` 
+
 ## API
 ```
   // Find the data portion of the object's memory and zero it out
