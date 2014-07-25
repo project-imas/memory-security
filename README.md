@@ -94,9 +94,9 @@ For a viable way to store application passwords look into the [Secure Foundation
 
 Also to increase overall security any password passed to lock/unlock should have wipe() ran on it immediately after use (As shown in the second part of the first use case). 
 
-## Use case 1: Sensitive variable clearing
+## Use case 1: Sensitive variable storage and clearing
 
-Suppose we have a variable that contains sensitive data, we want to limit it's time in memory so that if an attacker gets access to the program's runnign memory they have less chance of seeing it. One strategy is to immediately wipe an object's memory right after use:
+Suppose we have a variable that contains sensitive data, we want to limit it's time in memory so that if an attacker gets access to the program's running memory they have less chance of seeing it. One strategy is to immediately wipe an object's memory right after use:
 
 ```
    NSString* sensitiveData;
@@ -107,40 +107,64 @@ Suppose we have a variable that contains sensitive data, we want to limit it's t
 This ensures that the data is only in memory during the processing.  
 
 
-Similarly we could unlock the data and immediately lock it again every time a sensitive variable is used:
+Similarly we could lock the data, unlock immediately before use, and lock or wipe immediately after to obscure the data in memory:
 
 ![Lock Unlock Example](readmeImages/lockUnlockExample.JPG)
 
 
 ```
-   NSString* sensitiveData;
-   NSString* somePassword;
-   
-   unlock(sensitiveData, somePassword);
-   // Processing of sensitive data
-   lock(sensitiveData, somePassword);
-   
-   wipe(somePassword);
+// initialize and lock sensitive data
+NSString* sensitiveData;
+NSString* somePassword;
+lock(sensitiveData, somePassword);
+
+...
+
+// when there's need for the sensitive data
+unlock(sensitiveData, somePassword);
+/*
+ * processing of sensitive data
+ */
+lock(sensitiveData, somePassword);
+
+...
+
+// when finished finally with sensitive data
+wipe(sensitiveData);
 ```
 
-## Use case 2: Wiping memory when application is not active
+## Use case 2: Tracking objects for bulk actions
 
-When the device is locked, the app closed (hidden or terminated) we want to wipe all sensitive data.
+Using the `track()` and `untrack()` functions, Memory Security supports remembering multiple sensitive objects to perform bulk actions on.
 
-![Wipe on exit example](readmeImages/wipeAllExample.JPG)
-
-We start by tracking variables we care about up front:
+We start by tracking variables we care about and locking immediately after initialization:
 ```
-   NSString* obj1;
-   NSData* obj2;
-   NSArray* obj3;
+NSString* obj1;
+NSData* obj2;
+NSArray* obj3;
+NSString* somePassword;
    
-   track(obj1);
-   track(obj2);
-   track(obj3);
+track(obj1);
+track(obj2);
+track(obj3);
+
+lockAll(somePassword);
+```
+Then when we need one or more of the objects, we can unlock all tracked objects, or any one specific locked object:
+```
+unlockAll(somePassword);
+// OR unlock just one
+unlock(obj1,somePassword)
+/*
+ * data processing
+ */
+lockAll(somePassword);
+// OR lock just one
+lock(obj1,somePassword);
 ```
 
-Then inside of your program's **AppDelegate.m** add wipeAll to the resign and terminate functions:
+For instance, when the device is locked and/or the app is closed (hidden or terminated) we may want to lock or wipe all sensitive data. We might then add `lockAll()`/`unlockAll()` or `wipeAll()/secureExit()` to the state-change notify functions in your AppDelegate. `secureExit()` acts as a final cleanup that wipes all tracked objects as well as zeros out all internal structures used by Memory Security in preparation for application exit.
+
 ```
 - (void)applicationWillResignActive:(UIApplication *)application
 {
@@ -149,11 +173,12 @@ Then inside of your program's **AppDelegate.m** add wipeAll to the resign and te
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {
-   wipeAll();
+    secureExit();
 }
 ```
 
-A program could also add the ability to lockAll() and unlockAll() to WillResignActive and DidBecomeActive functions respectively.
+![Wipe on exit example](readmeImages/wipeAllExample.JPG)
+
 
 ## Use case 3: Check for memory tampering
 
@@ -186,6 +211,14 @@ Before using a variable:
       checksumMem();
    }
 ```
+
+## Address Space Validation
+
+Methods/Selectors that provide critical functionality are of special concern. For example, an attacker may attempt to point `checksumTest()` to a malicious function that always returns `YES`. Memory Security provides a way to verify with reasonable reliability that any critical method has not been tampered with in memory.
+
+On App startup, `validateTrack(*funcPtr)` may be used to internally register critical functions with memory security. Thereafter, `validateCheck(*funcPtr)` may be called prior to usage of the method/selector to ensure the function's relative location in memory has been unchanged.
+
+`objcFuncPtr(char* class, char* selector)` is a helper function that returns a pointer to any defined Objective-C selector, given the object Class and Selector name as arguments. This pointer can then be passed to `validateTrack()`/`validateCheck()` for verification puposes.
 
 ## License
 
