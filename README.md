@@ -26,6 +26,8 @@ The "iMAS Secure Memory" framework provides a set of tools for securing, clearin
 
 ## Installation via CocoaPod
 
+* - If you don't already have CocoaPods installed, do `$ sudo gem install cocoapods` in your terminal. (See the [CocoaPods website](http://guides.cocoapods.org/using/getting-started.html#getting-started) for details.)
+- In your project directory, do `pod init` to create a Podfile.
 * Add `pod 'SecureFoundation', :git => 'https://github.com/project-imas/securefoundation.git'` to your Podfile
 * On the next line, add `pod 'MemorySecurity', :git => 'https://github.com/project-imas/memory-security'`
 * Run `pod install`
