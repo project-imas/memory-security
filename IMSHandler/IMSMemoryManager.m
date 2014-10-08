@@ -53,11 +53,17 @@ inline NSString* hexString(NSObject* obj){
         isNumInt64 = ((type == 'i' || type == 'q' || type == 'l') && msb == 0xb0);
     }
     
+    if([obj isKindOfClass:[NSData class]])
+    {
+        rawObj = (void*)[(NSData*)obj bytes];
+    }
+    
     if(isNumInt64){
         unsigned char* raw = (unsigned char*)&rawObj;
         for(int i=0;i<8;i++) [hex appendFormat:((i%4==0 && i>0)?@" %02X":@"%02X"),raw[i]];
     }
-    else {
+    else
+    {
         int size = (int)malloc_size((__bridge void*) obj);
         for(int i = 0; i < size; i ++) {
             if(i%32==0 && i != 0) [hex appendString:@"\n"];
@@ -65,6 +71,8 @@ inline NSString* hexString(NSObject* obj){
             [hex appendFormat:@"%02X", rawObj[i]];
         }
     }
+    
+    
     
     return [NSString stringWithString:hex];
 }
@@ -83,7 +91,8 @@ inline void* getStart(NSObject* obj) {
         else
             return ((__bridge void*)obj + ((is64bit)?OFFSET64_LSTRING:OFFSET32_LSTRING));
     } else if([obj isKindOfClass:[NSData class]]) {
-        return ((__bridge void*)obj + ((is64bit)?OFFSET64_DATA7:((iosversion < 7.0)?OFFSET32_DATA6:OFFSET32_DATA7)));
+        return (void*)[(NSData*) obj bytes];
+   //     return ((__bridge void*)obj + ((is64bit)?OFFSET64_DATA7:((iosversion < 7.0)?OFFSET32_DATA6:OFFSET32_DATA7)));
     } else if([obj isKindOfClass:[NSNumber class]]) {
         char type = *[(NSNumber*)obj objCType];
         if(!is64bit)
